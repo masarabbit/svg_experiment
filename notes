@@ -1,0 +1,43 @@
+<svg width="100%" height="100%"> 
+<path d="M 10 10 H 90 V 90 H 10 Z" fill="transparent" stroke="black"/>
+
+ <path d="M 100 100 h 80 v 80 h -80 Z" fill="transparent" stroke="black"/>
+
+<path d="M 10 100 C 200 200, 300 200, 500 100" stroke="black" fill="transparent"/>
+
+</svg>
+
+
+<svg width="100%" height="100%" fill="transparent" stroke="red"> 
+ <path d="M 100 100 h 80" />
+
+</svg>
+
+https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+
+M = move to
+L = take to, needs x and y
+H = take to, only takes x
+V = take to, only takes y
+Z = closes path
+
+lowercase is relative
+
+
+C = curve, 1st control point, 2nd control point and destination
+S = 2 control point, but one of the point will be mirror of previous S or C
+Q = on control point 
+<path d="M 10 80 C 40 10, 65 10, 95 80 S 160 160, 180 80" stroke="black" fill="transparent"/>
+
+
+<path d="M 14.035 156.676 c-15.73-21.912-20.225-126.402,0-141.573 s122.472-21.908,133.708-3.371
+	c11.236,18.537,19.101,127.53,0,142.697 C128.642,169.596,29.766,178.589,14.035,156.676 z"/>
+
+
+  <path d="M 14.035 156.676 c-15.73-21.912-20.225-126.402,0-141.573 s122.472-21.908,133.708-3.371
+	c11.236,18.537,19.101,127.53,0,142.697 C128 169, 29 178 , 14.035 146.676 "/>
+
+
+
+test path with curve
+  <path d="M 68 256  c 0 0 , 2 -41, 24 -61   c 17 -15, 51 -28 , 90 0  c 19 14 , 10 81,  -36 85 C 100 285,  78  278 , 68 256 Z"/>
