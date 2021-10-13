@@ -6,7 +6,6 @@ function init() {
   const indicator = document.querySelector('.indicator')
   const svg = document.querySelector('.svg')
   const display = document.querySelector('.display')
-  const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
   const textarea = document.querySelector('textarea')
   const smoothing = 0.2
 
@@ -16,11 +15,6 @@ function init() {
   [5, 10],
   // [10, 40],
   // [40, 30],
-  // [60, 5],
-  // [90, 45],
-  // [120, 10],
-  // [150, 45],
-  // [200, 10]
   ]
 
   let pI = 0
@@ -28,9 +22,12 @@ function init() {
   let fill = 'none'
   let stroke = 'red'
   let strokeWidth = 3
+  let draw = true
+  let selectedNode 
   const pathData = [[]]
   const colorData = []
   const pointData = [[]]
+  // const nodeLines = { 0: {} }
 
 
   const line = (pointA, pointB) => {
@@ -57,12 +54,57 @@ function init() {
   return [Math.round(x), Math.round(y)]
   }
 
-  const addCnode = (x,y) =>{
-    const cNode = document.createElement('div')
-    cNode.classList.add('cNode')
-    cNode.style.left = `${x}px`
-    cNode.style.top = `${y}px`  
-    display.appendChild(cNode)
+  const addNode = (x,y,nI) =>{
+    const node = document.createElement('div')
+    node.classList.add('node')
+    if (`${pI}-${nI}` === selectedNode) node.classList.add('selected')
+    node.style.left = `${x}px`
+    node.style.top = `${y}px`  
+    node.dataset.pI = `${pI}`
+    node.dataset.nI = `${nI}` //todo change this
+    display.appendChild(node)
+
+    const onDrag = e => {
+      const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
+      // const newX = node.offsetLeft + e.movementX
+      // const newY = node.offsetTop + e.movementY
+      const newX = e.clientX - offSetX
+      const newY = e.clientY - offSetY
+      node.style.left = `${newX}px`
+      node.style.top = `${newY}px`
+      const pI = +node.dataset.pI
+      const nI = +node.dataset.nI
+      selectedNode = `${pI}-${nI}`
+      
+      pathData[pI][nI].xy = [newX, newY]
+      pointData[pI][nI] = [newX, newY]
+      svg.innerHTML = svgPath(pointData[pI])
+      
+      
+      // if (pathData[pI][nI].letter === 'C'){
+      //   const nextI = nI  === pathData[pI][nI].filter(d=>d.letter !== 'Z').length - 1 ? 0 : nI + 1
+
+      //   nodeLines[pI][nI].nodeL = `<line stroke="red" x1="${pathData[pI][nI].xy[0]}" y1="${pathData[pI][nI].xy[1]}" x2="${newX}" y2="${newY}"/>`
+
+      //   nodeLines[pI][nextI].nodeR = `<line stroke="blue" x1="${pathData[pI][nextI].xy[0]}" y1="${pathData[pI][nextI].xy[1]}" x2="${newX}" y2="${newY}"/>`
+      // }
+      
+    }
+
+    const onLetGo = () => {
+      document.removeEventListener('mousemove', onDrag)
+      document.removeEventListener('mouseup', onLetGo)
+      // svg.innerHTML = svgPath(pointData[pI])
+    } 
+    const onGrab = () => {
+      document.addEventListener('mousemove', onDrag)
+      document.addEventListener('mouseup', onLetGo)
+    }
+    
+    node.addEventListener('mouseenter',()=>draw = false)
+    node.addEventListener('mouseleave',()=>draw = true)
+    node.addEventListener('mousedown', onGrab)
+
   }
 
   // const addHandle = (x,y) =>{
@@ -74,15 +116,15 @@ function init() {
 
     const command = (point, i, arr) => {
       // console.log('point', point)
-      //TODO make below defaults ?
-      pathData[pI][i].dxy1 = controlPoint(arr[i - 1], arr[i - 2], point, false)
-      pathData[pI][i].dxy2 = controlPoint(point, arr[i - 1], arr[i + 1], true) //? need next point to be able to work this out
+      //TODO make below defaults ? if already defined, shouldn't enter?
+      pathData[pI][i].dxy1 = pathData[pI][i].dxy1Set || controlPoint(arr[i - 1], arr[i - 2], point, false)
+      pathData[pI][i].dxy2 = pathData[pI][i].dxy2Set || controlPoint(point, arr[i - 1], arr[i + 1], true) //? need next point to be able to work this out
 
       // return `C ${dxy1[0]},${dxy1[1]} ${dxy2[0]},${dxy2[1]} ${point[0]},${point[1]}`
       // return `L ${point[0]},${point[1]}`
 
       const { letter, dxy1, dxy2, xy } = pathData[pI][i]
-      return pointData[pI][nI] = letter === 'C' 
+      return pathData[pI][nI] = letter === 'C' 
         ? `${letter} ${dxy1[0]},${dxy1[1]} ${dxy2[0]},${dxy2[1]} ${xy[0]},${xy[1]}`
         : `${letter} ${xy[0]},${xy[1]}`
     }
@@ -99,12 +141,18 @@ function init() {
       : `${acc} ${command(point, i, arr)}`
       
       coords.push(coord)
-      addCnode(points[i][0], points[i][1]) //todo how to return coords? where does 3 come from?
+      // addNode(points[i][0], points[i][1]) //todo how to return coords? where does 3 come from?
       return coord
     }
   , '')
   
   textarea.value = d
+
+  display.innerHTML = ''
+  pointData[pI].forEach((p,i)=>{
+    console.log('p',p)
+    addNode(p[0],p[1],i)
+  })
 
   console.log('path', `<path d="${d}" fill="${fill}" stroke="${stroke}" />`)
   return `<path d="${d}" fill="${colorData[pI].fill}" stroke="${colorData[pI].stroke}" stroke-width="${colorData[pI].strokeWidth}" />`
@@ -118,21 +166,20 @@ function init() {
   // svg.innerHTML = svgPath(points)
 
   display.addEventListener('mousemove',(e)=>{
+    const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
     indicator.innerHTML = `x:${e.clientX - offSetX} y:${e.clientY - offSetY}`
   })
   
   //* throttle this?
   display.addEventListener('click', (e)=>{
+    if (!draw) return
+    const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
+
     //* prep
     pathData[pI].push({})
     // const newPath = pathData[pI][nI]
     
     //* xy id letter dxy1 dxy2
-    // newPath.id = [pI, nI]
-    // newPath.letter = nI === 0 ? 'M' : 'L'
-    // newPath.dxy1 = []
-    // newPath.dxy2 = []
-    // newPath.xy = [e.clientX - offSetX, e.clientY - offSetY]
     pathData[pI][nI] = {
       id: [pI, nI],
       letter: nI === 0 ? 'M' : 'C',
