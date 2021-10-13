@@ -27,11 +27,11 @@ function init() {
   let nodeIndex = 0
   // let cNodeIndex = 0
   const pathDataArray = [[]]
-  const pathData = {0:{}}
-  const nodeLines = {0:{}}
-  let fill = 'transparent'
+  const pathData = { 0: {} }
+  const nodeLines = { 0: {} }
+  const fill = 'transparent'
   // let stroke = 'transparent'
-  let stroke = 'grey'
+  const stroke = 'grey'
   let draw = true
   let curve = false
   
@@ -66,8 +66,8 @@ function init() {
     const lines = []
     pathDataArray.forEach((path,pI)=>{
       path.forEach((p,nI)=>{
-        if(p[0] === 'C') {
-          const nextI = nI === pathDataArray[pI].filter(d=>d!=='Z').length - 2 ? 0 : nI + 1
+        if (p[0] === 'C') {
+          const nextI = nI === pathDataArray[pI].filter(d=>d !== 'Z').length - 2 ? 0 : nI + 1
           // console.log('nextI',nextI)
           // console.log('nodeLines',nodeLines[pI])
           lines.push(nodeLines[pI][nI].nodeL)
@@ -85,11 +85,13 @@ function init() {
     //! this bit should be converting the entire pathData?
     //! or mayber nodes get pushed back into pathDataArray?
     const nodes = []
-    for(let i = 0; i < pathDataLength; i++){
-      const {letter, x, y, x1, y1, x2, y2} = currentPathData[i]
-      x1? nodes.push(`${letter} ${x1} ${y1}, ${x2} ${y2}, ${x} ${y}`)
+    for (let i = 0; i < pathDataLength; i++){
+      const { letter, x, y, x1, y1, x2, y2 } = currentPathData[i]
+      x1 ? nodes.push(`${letter} ${x1} ${y1}, ${x2} ${y2}, ${x} ${y}`)
         : nodes.push(`${letter} ${x} ${y}`)
     }
+
+    //* update coordinate display
     svgInput.value = nodes.join(' ')
     coordOutput.innerHTML = nodes.map((node,i)=>{
       return `
@@ -114,7 +116,7 @@ function init() {
   const addCnode = (pI,nI,type) =>{
     const cNode = document.createElement('div')
     cNode.classList.add('cNode')
-    const {x1, y1, x2, y2 } = pathData[pI][nI]
+    const { x1, y1, x2, y2 } = pathData[pI][nI]
     const x = type === 'L' ? x2 : x1
     const y = type === 'L' ? y2 : y1
 
@@ -128,7 +130,7 @@ function init() {
     cNode.addEventListener('mouseleave',()=>draw = true)
 
     const onDrag = e => {
-      let originalStyles = window.getComputedStyle(cNode)
+      const originalStyles = window.getComputedStyle(cNode)
       const newX = parseInt(originalStyles.left) + e.movementX
       const newY = parseInt(originalStyles.top) + e.movementY
       cNode.style.left = `${newX}px`
@@ -139,7 +141,7 @@ function init() {
         pathData[pI][nI].y2 = newY
         nodeLines[pI][nI].nodeL = `<line stroke="red" x1="${newX}" y1="${newY}" x2="${pathData[pI][nI].x}" y2="${pathData[pI][nI].y}"/>`
       } else {
-        const prevI = nI  === 0 ? pathDataArray[pI].filter(d=>d!=='Z').length - 1 : nI  - 1 
+        const prevI = nI  === 0 ? pathDataArray[pI].filter(d=>d !== 'Z').length - 1 : nI  - 1 
         pathData[pI][nI].x1 = newX
         pathData[pI][nI].y1 = newY
         nodeLines[pI][nI].nodeR = `<line stroke="blue" x1="${newX}" y1="${newY}" x2="${pathData[pI][prevI].x}" y2="${pathData[pI][prevI].y}"/>`
@@ -177,15 +179,15 @@ function init() {
     const pI = +e.target.dataset.pI
     const nI = +e.target.dataset.nI
     const currentNodeData = pathData[pI][nI]
-    const {letter, x, y} = currentNodeData
+    const { letter, x, y } = currentNodeData
 
     // console.log('x',x)
     // console.log('y',y)
     
     //! these work around for the first index is not working 100%
-    const currentI = nI === 0 ? pathDataArray[pI].filter(d=>d!=='Z').length - 1 : nI //! maybe this needs to be added to other nodes too?
-    const prevI = currentI  === 0 ? pathDataArray[pI].filter(d=>d!=='Z').length - 1 : currentI  - 1 
-    const nextI = currentI  === pathDataArray[pI].filter(d=>d!=='Z').length - 1 ? 0 : currentI  + 1
+    const currentI = nI === 0 ? pathDataArray[pI].filter(d=>d !== 'Z').length - 1 : nI //! maybe this needs to be added to other nodes too?
+    const prevI = currentI  === 0 ? pathDataArray[pI].filter(d=>d !== 'Z').length - 1 : currentI  - 1 
+    const nextI = currentI  === pathDataArray[pI].filter(d=>d !== 'Z').length - 1 ? 0 : currentI  + 1
 
     if (letter !== 'C') {
       pathData[pI][currentI].letter = 'C'
@@ -254,7 +256,7 @@ function init() {
     display.appendChild(node)
 
     const onDrag = e => {
-      let originalStyles = window.getComputedStyle(node)
+      const originalStyles = window.getComputedStyle(node)
       const newX = parseInt(originalStyles.left) + e.movementX
       const newY = parseInt(originalStyles.top) + e.movementY
       node.style.left = `${newX}px`
@@ -267,7 +269,7 @@ function init() {
       
       if (nodeLines[pI][nI].nodeL !== ''){
 
-        const nextI = nI  === pathDataArray[pI].filter(d=>d!=='Z').length - 1 ? 0 : nI + 1
+        const nextI = nI  === pathDataArray[pI].filter(d=>d !== 'Z').length - 1 ? 0 : nI + 1
         // const prevI = nI  === 0 ? pathDataArray[pI].filter(d=>d!=='Z').length - 1 : nI  - 1 
 
         console.log('nextI',nextI)
@@ -312,11 +314,11 @@ function init() {
   })
 
   button.forEach(b=>{
-    if(b.dataset.c === 'n') b.addEventListener('click',newPath)
-    if(b.dataset.c === 'z') b.addEventListener('click',()=>{
+    if (b.dataset.c === 'n') b.addEventListener('click',newPath)
+    if (b.dataset.c === 'z') b.addEventListener('click',()=>{
       closePath()
     })
-    if(b.dataset.c === 'c') b.addEventListener('click',()=>{
+    if (b.dataset.c === 'c') b.addEventListener('click',()=>{
       curve = !curve
     })
   })
