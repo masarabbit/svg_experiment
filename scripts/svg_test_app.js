@@ -76,6 +76,8 @@ function init() {
   } 
   
   const outputSvgAndHandles = pI =>{
+    // todo may need to do forEach here to loop through svgPath, currently only does 1 svg.
+    
     svg.innerHTML = svgPath(pathData[pI].map(n=>n.xy)) + svgHandleLine(pI)
     display.innerHTML = ''
     nodeTypes.forEach(nodeType=>{
