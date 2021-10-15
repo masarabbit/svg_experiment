@@ -3,6 +3,9 @@ function init() {
   // adapted from ref below
   //ref https://codepen.io/francoisromain/pen/dzoZZj?editors=0010
 
+  // todo node could be in different plane, or classes on 'display' could trigger appearance of node
+  // eg: display.hideNode .node { opacity: 0 } + only visible on hover
+
   const indicator = document.querySelector('.indicator')
   const svg = document.querySelector('.svg')
   const display = document.querySelector('.display')
@@ -56,29 +59,26 @@ function init() {
   }
 
 
-  const leftLine = (xy, dxy2) =>{
-    return `<line stroke="red" x1="${xy[0]}" y1="${xy[1]}" x2="${dxy2[0]}" y2="${dxy2[1]}"/>` 
+
+  const nodeLine = (xy, nextDxy1, color) =>{
+    return `<line stroke="${color}" x1="${nextDxy1[0]}" y1="${nextDxy1[1]}" x2="${xy[0]}" y2="${xy[1]}"/>`
   }
 
-  const rightLine = (xy, nextDxy1) =>{
-    return `<line stroke="blue" x1="${nextDxy1[0]}" y1="${nextDxy1[1]}" x2="${xy[0]}" y2="${xy[1]}"/>`
-  }
-
-  const svgHandleLine = pI =>{
+  const nodeLines = pI =>{
     const pointData = pathData[pI].map(n=>{
-      return [n.xy, n.dxy1, n.dxy2]
+      return { xy:n.xy, dxy1:n.dxy1, dxy2:n.dxy2 }
     })
     return pointData.map((n,i)=>{
-      const L = !n[1][0] ? '' : leftLine(n[0],n[2])
-      const R = !pointData[i + 1] ? '' : rightLine(n[0],pointData[i + 1][1])
-      return L + R
+      const leftLine = n.dxy1[0] ? nodeLine(n.xy,n.dxy2,'red') : ''
+      const rightLine = pointData[i + 1] ? nodeLine(n.xy,pointData[i + 1].dxy1,'blue') : ''
+      return leftLine + rightLine
     }).join('')
   } 
   
-  const outputSvgAndHandles = pI =>{
+  const outputSvgAndNodes = pI =>{
     // todo may need to do forEach here to loop through svgPath, currently only does 1 svg.
     
-    svg.innerHTML = svgPath(pathData[pI].map(n=>n.xy)) + svgHandleLine(pI)
+    svg.innerHTML = svgPath(pathData[pI].map(n=>n.xy)) + nodeLines(pI)
     display.innerHTML = ''
     nodeTypes.forEach(nodeType=>{
       pathData[pI].map(n=>n[nodeType]).forEach((p,i)=>{
@@ -115,7 +115,7 @@ function init() {
       } else {
         pathData[pI][nI][nodeType + 'Set'] = [newX, newY]
       }
-      outputSvgAndHandles(pI)
+      outputSvgAndNodes(pI)
     }
 
     const onLetGo = () => {
@@ -142,7 +142,7 @@ function init() {
   const svgPath = points => {
   // console.log('points', points)
     const command = (point, i, arr) => {
-      //TODO make below defaults ? if already defined, shouldn't enter?
+      // manually set value || calculated value
       pathData[pI][i].dxy1 = pathData[pI][i].dxy1Set || controlPoint(arr[i - 1], arr[i - 2], point, false)
       pathData[pI][i].dxy2 = pathData[pI][i].dxy2Set || controlPoint(point, arr[i - 1], arr[i + 1], true)
 
@@ -160,8 +160,9 @@ function init() {
       return coord
     },'')  
   textarea.value = d
-
-  return `<path d="${d}" fill="${colorData[pI].fill}" stroke="${colorData[pI].stroke}" stroke-width="${colorData[pI].strokeWidth}" />`
+  
+  const { fill, stroke, strokeWidth } = colorData[pI]
+  return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" />`
   }
 
 
@@ -202,7 +203,7 @@ function init() {
     }
     
     //* prep next  
-    outputSvgAndHandles(pI)
+    outputSvgAndNodes(pI)
     nI++
     // console.log('svgHandleLine', svgHandleLine(pI))
   })
