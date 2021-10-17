@@ -33,7 +33,7 @@ function init() {
   const pathData = [[]]
   const colorData = []
   // const pointData = [[]]
-  const nodeTypes = ['xy', 'dxy1', 'dxy2']
+  const nodeTypes = ['xy', 'xy1', 'xy2']
 
 
 
@@ -63,17 +63,17 @@ function init() {
 
 
 
-  const nodeLine = (xy, nextDxy1, color) =>{
-    return `<line stroke="${color}" x1="${nextDxy1[0]}" y1="${nextDxy1[1]}" x2="${xy[0]}" y2="${xy[1]}"/>`
+  const nodeLine = (xy, nextXy1, color) =>{
+    return `<line stroke="${color}" x1="${nextXy1[0]}" y1="${nextXy1[1]}" x2="${xy[0]}" y2="${xy[1]}"/>`
   }
 
   const nodeLines = pI =>{
     const pointData = pathData[pI].map(n=>{
-      return { xy: n.xy, dxy1: n.dxy1, dxy2: n.dxy2 }
+      return { xy: n.xy, xy1: n.xy1, xy2: n.xy2 }
     })
     return pointData.map((n,i)=>{
-      const leftLine = n.dxy1[0] ? nodeLine(n.xy,n.dxy2,'red') : ''
-      const rightLine = pointData[i + 1] ? nodeLine(n.xy,pointData[i + 1].dxy1,'blue') : ''
+      const leftLine = n.xy1[0] ? nodeLine(n.xy,n.xy2,'red') : ''
+      const rightLine = pointData[i + 1] ? nodeLine(n.xy,pointData[i + 1].xy1,'blue') : ''
       return leftLine + rightLine
     }).join('')
   } 
@@ -121,28 +121,28 @@ function init() {
       if (nodeType === 'xy') { 
         pathData[pI][nI][nodeType] = [newX, newY]
         
-        // moves dxy1 and dxy2 if applicable 
-        if (pathData[pI][nI + 1] && pathData[pI][nI + 1].dxy1Set) {
-          const { dxy1Set: xy } = pathData[pI][nI + 1]
-          pathData[pI][nI + 1].dxy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
+        // moves xy1 and xy2 if applicable 
+        if (pathData[pI][nI + 1] && pathData[pI][nI + 1].xy1Set) {
+          const { xy1Set: xy } = pathData[pI][nI + 1]
+          pathData[pI][nI + 1].xy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
         }
-        if (pathData[pI][nI] && pathData[pI][nI].dxy2Set) {
-          const { dxy2Set: xy } = pathData[pI][nI]
-          pathData[pI][nI].dxy2Set = [ xy[0] - xDiff, xy[1] - yDiff]
+        if (pathData[pI][nI] && pathData[pI][nI].xy2Set) {
+          const { xy2Set: xy } = pathData[pI][nI]
+          pathData[pI][nI].xy2Set = [ xy[0] - xDiff, xy[1] - yDiff]
         } 
       } else {
         pathData[pI][nI][nodeType + 'Set'] = [newX, newY]
         const isNodePaired = pathData[pI][nI].dxyAuto
   
-        // if dxy1 was moved, move dxy2 accordingly
-        if (nodeType === 'dxy1' && pathData[pI][nI - 1] && isNodePaired) {
-          const { dxy2 } = pathData[pI][nI - 1]
-          pathData[pI][nI - 1].dxy2Set = [ dxy2[0] + xDiff, dxy2[1] + yDiff]
+        // if xy1 was moved, move xy2 accordingly
+        if (nodeType === 'xy1' && pathData[pI][nI - 1] && isNodePaired) {
+          const { xy2 } = pathData[pI][nI - 1]
+          pathData[pI][nI - 1].xy2Set = [ xy2[0] + xDiff, xy2[1] + yDiff]
         
-        // if dxy2 was moved, move dxy1 accordingly
-        } else if (nodeType === 'dxy2' && pathData[pI][nI + 1] && isNodePaired) {
-          const { dxy1 } = pathData[pI][nI + 1]
-          pathData[pI][nI + 1].dxy1Set = [ dxy1[0] + xDiff, dxy1[1] + yDiff]
+        // if xy2 was moved, move xy1 accordingly
+        } else if (nodeType === 'xy2' && pathData[pI][nI + 1] && isNodePaired) {
+          const { xy1 } = pathData[pI][nI + 1]
+          pathData[pI][nI + 1].xy1Set = [ xy1[0] + xDiff, xy1[1] + yDiff]
         }
       }
       outputSvgAndNodes(pI)
@@ -175,12 +175,12 @@ function init() {
   // console.log('points', points)
     const command = (point, i, arr) => {
       // manually set value || calculated value
-      pathData[pI][i].dxy1 = pathData[pI][i].dxy1Set || controlPoint(arr[i - 1], arr[i - 2], point, false)
-      pathData[pI][i].dxy2 = pathData[pI][i].dxy2Set || controlPoint(point, arr[i - 1], arr[i + 1], true)
+      pathData[pI][i].xy1 = pathData[pI][i].xy1Set || controlPoint(arr[i - 1], arr[i - 2], point, false)
+      pathData[pI][i].xy2 = pathData[pI][i].xy2Set || controlPoint(point, arr[i - 1], arr[i + 1], true)
 
-      const { letter, dxy1, dxy2, xy } = pathData[pI][i]
+      const { letter, xy1, xy2, xy } = pathData[pI][i]
       return pathData[pI][i].letter === 'C' 
-        ? `${letter} ${dxy1[0]},${dxy1[1]} ${dxy2[0]},${dxy2[1]} ${xy[0]},${xy[1]}`
+        ? `${letter} ${xy1[0]},${xy1[1]} ${xy2[0]},${xy2[1]} ${xy[0]},${xy[1]}`
         : `${letter} ${xy[0]},${xy[1]}`
     }
 
@@ -217,18 +217,18 @@ function init() {
     // prep
     pathData[pI].push({})
 
-    // xy id letter dxy1 dxy2
+    // xy id letter xy1 xy2
     pathData[pI][nI] = {
       id: [pI, nI],
       letter: nI === 0 ? 'M' : 'C',
-      dxy1: [],
-      dxy2: [],
-      dxyAuto: true, //* toggle this to unpair dxy1 and dxy2
+      xy1: [],
+      xy2: [],
+      dxyAuto: true, //* toggle this to unpair xy1 and xy2
       xy: [e.clientX - offSetX, e.clientY - offSetY],
     }
 
-    // resets dxy2Set if set already
-    if (pathData[pI][nI - 1] && pathData[pI][nI - 1].dxy2Set) pathData[pI][nI - 1].dxy2Set = null
+    // resets xy2Set if set already
+    if (pathData[pI][nI - 1] && pathData[pI][nI - 1].xy2Set) pathData[pI][nI - 1].xy2Set = null
 
     colorData[pI] = {
       fill: fill,

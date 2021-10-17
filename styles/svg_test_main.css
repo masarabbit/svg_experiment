@@ -121,8 +121,8 @@ svg:hover {
 }
 
 .xy { border: 1px solid rgb(52, 247, 237); }
-.dxy1 { border: 1px solid rgb(247, 124, 52); }
-.dxy2 { border: 1px solid rgb(241, 52, 247); }
+.xy1 { border: 1px solid rgb(247, 124, 52); }
+.xy2 { border: 1px solid rgb(241, 52, 247); }
 
 .node {
   position: absolute;
