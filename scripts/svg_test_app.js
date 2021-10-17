@@ -6,6 +6,9 @@ function init() {
   // todo node could be in different plane, or classes on 'display' could trigger appearance of node
   // eg: display.hideNode .node { opacity: 0 } + only visible on hover
 
+  // delete node / remove node (nodes needs to be relabelled accordingly)
+  // close path (check what the svg looks like in illustrator)
+
   const indicator = document.querySelector('.indicator')
   const svg = document.querySelector('.svg')
   const display = document.querySelector('.display')
@@ -14,17 +17,17 @@ function init() {
 
   //* maybe this should be object?
   //* record letter etc
-  const points = [
-  [5, 10],
-  // [10, 40],
-  // [40, 30],
-  ]
+  // const points = [
+  //   [5, 10]
+  //   [10, 40],
+  //   [40, 30],
+  // ]
 
-  let pI = 0
+  const pI = 0
   let nI = 0
-  let fill = 'none'
-  let stroke = 'red'
-  let strokeWidth = 3
+  const fill = 'none'
+  const stroke = 'red'
+  const strokeWidth = 3
   let draw = true
   let selectedNode 
   const pathData = [[]]
@@ -55,7 +58,7 @@ function init() {
     const y = current[1] + Math.sin(lineAngle) * lineLength || current[1]
 
     //TODO roundup x and y?
-  return [Math.round(x), Math.round(y)]
+    return [Math.round(x), Math.round(y)]
   }
 
 
@@ -66,7 +69,7 @@ function init() {
 
   const nodeLines = pI =>{
     const pointData = pathData[pI].map(n=>{
-      return { xy:n.xy, dxy1:n.dxy1, dxy2:n.dxy2 }
+      return { xy: n.xy, dxy1: n.dxy1, dxy2: n.dxy2 }
     })
     return pointData.map((n,i)=>{
       const leftLine = n.dxy1[0] ? nodeLine(n.xy,n.dxy2,'red') : ''
@@ -82,7 +85,7 @@ function init() {
     display.innerHTML = ''
     nodeTypes.forEach(nodeType=>{
       pathData[pI].map(n=>n[nodeType]).forEach((p,i)=>{
-        if(!p[0]) return
+        if (!p[0]) return
         addNode(p[0],p[1],i,nodeType)
       })
     })
@@ -100,7 +103,7 @@ function init() {
     display.appendChild(node)
 
     const onDrag = e => {
-      const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
+      const { x: offSetX, y: offSetY } = display.getBoundingClientRect()
       const newX = e.clientX - offSetX
       const newY = e.clientY - offSetY
       node.style.left = `${newX}px`
@@ -109,11 +112,38 @@ function init() {
       const nI = +node.dataset.nI
       selectedNode = `${pI}-${nI}`
       
-      pathData[pI].map(n=>n[nodeType])[nI] = [newX, newY]
-      if(nodeType === 'xy') { 
-        pathData[pI][nI][nodeType] = [newX, newY] 
+      // returns how much the node has moved, 
+      // so that related nodes could be moved accordingly
+      const prev = pathData[pI][nI][nodeType]
+      const xDiff = prev[0] - newX
+      const yDiff = prev[1] - newY
+      
+      if (nodeType === 'xy') { 
+        pathData[pI][nI][nodeType] = [newX, newY]
+        
+        // moves dxy1 and dxy2 if applicable 
+        if (pathData[pI][nI + 1] && pathData[pI][nI + 1].dxy1Set) {
+          const { dxy1Set: xy } = pathData[pI][nI + 1]
+          pathData[pI][nI + 1].dxy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
+        }
+        if (pathData[pI][nI] && pathData[pI][nI].dxy2Set) {
+          const { dxy2Set: xy } = pathData[pI][nI]
+          pathData[pI][nI].dxy2Set = [ xy[0] - xDiff, xy[1] - yDiff]
+        } 
       } else {
         pathData[pI][nI][nodeType + 'Set'] = [newX, newY]
+        const isNodePaired = pathData[pI][nI].dxyAuto
+  
+        // if dxy1 was moved, move dxy2 accordingly
+        if (nodeType === 'dxy1' && pathData[pI][nI - 1] && isNodePaired) {
+          const { dxy2 } = pathData[pI][nI - 1]
+          pathData[pI][nI - 1].dxy2Set = [ dxy2[0] + xDiff, dxy2[1] + yDiff]
+        
+        // if dxy2 was moved, move dxy1 accordingly
+        } else if (nodeType === 'dxy2' && pathData[pI][nI + 1] && isNodePaired) {
+          const { dxy1 } = pathData[pI][nI + 1]
+          pathData[pI][nI + 1].dxy1Set = [ dxy1[0] + xDiff, dxy1[1] + yDiff]
+        }
       }
       outputSvgAndNodes(pI)
     }
@@ -122,10 +152,12 @@ function init() {
       document.removeEventListener('mousemove', onDrag)
       document.removeEventListener('mouseup', onLetGo)
       // svg.innerHTML = svgPath(pointData[pI])
+      // draw = true
     } 
     const onGrab = () => {
       document.addEventListener('mousemove', onDrag)
       document.addEventListener('mouseup', onLetGo)
+      // draw = false
     }
     
     node.addEventListener('mouseenter',()=>draw = false)
@@ -155,14 +187,14 @@ function init() {
     const d = points.reduce((acc, point, i, arr) => {
       // if (i !== 0) console.log('command_within', command(point, i, arr))
       const coord = i === 0
-      ? `M ${point[0]},${point[1]}`
-      : `${acc} ${command(point, i, arr)}`
+        ? `M ${point[0]},${point[1]}`
+        : `${acc} ${command(point, i, arr)}`
       return coord
     },'')  
-  textarea.value = d
+    textarea.value = d
   
-  const { fill, stroke, strokeWidth } = colorData[pI]
-  return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" />`
+    const { fill, stroke, strokeWidth } = colorData[pI]
+    return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" />`
   }
 
 
@@ -172,7 +204,7 @@ function init() {
 
 
   display.addEventListener('mousemove',(e)=>{
-    const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
+    const { x: offSetX, y: offSetY } = display.getBoundingClientRect()
     indicator.innerHTML = `x:${e.clientX - offSetX} y:${e.clientY - offSetY}`
   })
   
@@ -180,32 +212,33 @@ function init() {
   //* throttle this?
   display.addEventListener('click', (e)=>{
     if (!draw) return
-    const { x:offSetX, y:offSetY } = display.getBoundingClientRect()
+    const { x: offSetX, y: offSetY } = display.getBoundingClientRect()
 
-    //* prep
+    // prep
     pathData[pI].push({})
-    // const newPath = pathData[pI][nI]
 
-    //* xy id letter dxy1 dxy2
+    // xy id letter dxy1 dxy2
     pathData[pI][nI] = {
       id: [pI, nI],
       letter: nI === 0 ? 'M' : 'C',
       dxy1: [],
       dxy2: [],
+      dxyAuto: true, //* toggle this to unpair dxy1 and dxy2
       xy: [e.clientX - offSetX, e.clientY - offSetY],
     }
 
-    // pointData[pI][nI] = pathData[pI][nI].xy
+    // resets dxy2Set if set already
+    if (pathData[pI][nI - 1] && pathData[pI][nI - 1].dxy2Set) pathData[pI][nI - 1].dxy2Set = null
+
     colorData[pI] = {
       fill: fill,
       stroke: stroke,
       strokeWidth: strokeWidth
     }
     
-    //* prep next  
+    // prep next  
     outputSvgAndNodes(pI)
     nI++
-    // console.log('svgHandleLine', svgHandleLine(pI))
   })
 }
 
