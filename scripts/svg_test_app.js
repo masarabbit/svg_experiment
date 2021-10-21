@@ -8,7 +8,8 @@ function init() {
 
   // delete node / remove node (nodes needs to be relabelled accordingly)
   // close path (check what the svg looks like in illustrator)
-
+  
+  const buttons = document.querySelectorAll('.button')
   const indicator = document.querySelector('.indicator')
   const svg = document.querySelector('.svg')
   const display = document.querySelector('.display')
@@ -17,13 +18,8 @@ function init() {
 
   //* maybe this should be object?
   //* record letter etc
-  // const points = [
-  //   [5, 10]
-  //   [10, 40],
-  //   [40, 30],
-  // ]
 
-  const pI = 0
+  let pI = 0
   let nI = 0
   const fill = 'none'
   const stroke = 'red'
@@ -32,9 +28,7 @@ function init() {
   let selectedNode 
   const pathData = [[]]
   const colorData = []
-  // const pointData = [[]]
   const nodeTypes = ['xy', 'xy1', 'xy2']
-
 
 
   const line = (pointA, pointB) => {
@@ -62,37 +56,47 @@ function init() {
   }
 
 
-
   const nodeLine = (xy, nextXy1, color) =>{
+    if(!xy || !nextXy1) return
     return `<line stroke="${color}" x1="${nextXy1[0]}" y1="${nextXy1[1]}" x2="${xy[0]}" y2="${xy[1]}"/>`
   }
 
   const nodeLines = pI =>{
     const pointData = pathData[pI].map(n=>{
+      if(!n) return ''
       return { xy: n.xy, xy1: n.xy1, xy2: n.xy2 }
     })
     return pointData.map((n,i)=>{
+      if(!n.xy) return ''
       const leftLine = n.xy1[0] ? nodeLine(n.xy,n.xy2,'red') : ''
       const rightLine = pointData[i + 1] ? nodeLine(n.xy,pointData[i + 1].xy1,'blue') : ''
       return leftLine + rightLine
     }).join('')
   } 
   
-  const outputSvgAndNodes = pI =>{
-    // todo may need to do forEach here to loop through svgPath, currently only does 1 svg.
-    
-    svg.innerHTML = svgPath(pathData[pI].map(n=>n.xy)) + nodeLines(pI)
+
+
+  const outputSvgAndNodes = () =>{    
+    svg.innerHTML = pathData.map((data,i)=>{
+      return svgPath(i,data.map(n=>n.xy)) + nodeLines(i)
+    }).join('')
+
     display.innerHTML = ''
+    // console.log('pathData', pathData[pI].filter(n=>n.xy))
     nodeTypes.forEach(nodeType=>{
-      pathData[pI].map(n=>n[nodeType]).forEach((p,i)=>{
-        if (!p[0]) return
-        addNode(p[0],p[1],i,nodeType)
+      pathData.forEach((data,pI)=>{
+        data.filter(n=>n.xy).map(n=>n[nodeType]).forEach((p,nI)=>{
+          // console.log('p',p, nodeType)
+          if (!p[0]) return
+          addNode(p[0],p[1],pI,nI,nodeType)
+        })
       })
     })
   }
 
-  const addNode = (x,y,nI,nodeType) =>{
+  const addNode = (x,y,pI,nI,nodeType) =>{
     const node = document.createElement('div')
+    if (pathData[pI][nI].closed) node.classList.add('z-index-plus')
     node.classList.add('node')
     node.classList.add(nodeType)
     if (`${pI}-${nI}` === selectedNode) node.classList.add('selected')
@@ -111,20 +115,28 @@ function init() {
       const pI = +node.dataset.pI
       const nI = +node.dataset.nI
       selectedNode = `${pI}-${nI}`
-      
+
       // returns how much the node has moved, 
       // so that related nodes could be moved accordingly
       const prev = pathData[pI][nI][nodeType]
       const xDiff = prev[0] - newX
       const yDiff = prev[1] - newY
+
+      const nextNi = pathData[pI][nI].close ? 1 : nI + 1
+      const prevNi = nI === 1 && pathData[pI][pathData[pI].length -1].letter === 'Z' ? pathData[pI].length - 2 : nI -1 
+      // console.log(`next:${nextNi} - prev:${prevNi}`)
+
+      if (nodeType === 'xy' && pathData[pI][nI].closed){
+        pathData[pI][0].xy = [newX, newY]
+      }
       
       if (nodeType === 'xy') { 
         pathData[pI][nI][nodeType] = [newX, newY]
         
         // moves xy1 and xy2 if applicable 
-        if (pathData[pI][nI + 1] && pathData[pI][nI + 1].xy1Set) {
-          const { xy1Set: xy } = pathData[pI][nI + 1]
-          pathData[pI][nI + 1].xy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
+        if (pathData[pI][nextNi] && pathData[pI][nextNi].xy1Set) {
+          const { xy1Set: xy } = pathData[pI][nextNi]
+          pathData[pI][nextNi].xy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
         }
         if (pathData[pI][nI] && pathData[pI][nI].xy2Set) {
           const { xy2Set: xy } = pathData[pI][nI]
@@ -135,23 +147,22 @@ function init() {
         const isNodePaired = pathData[pI][nI].dxyAuto
   
         // if xy1 was moved, move xy2 accordingly
-        if (nodeType === 'xy1' && pathData[pI][nI - 1] && isNodePaired) {
-          const { xy2 } = pathData[pI][nI - 1]
-          pathData[pI][nI - 1].xy2Set = [ xy2[0] + xDiff, xy2[1] + yDiff]
+        if (nodeType === 'xy1' && pathData[pI][prevNi] && isNodePaired) {
+          const { xy2 } = pathData[pI][prevNi]
+          pathData[pI][prevNi].xy2Set = [ xy2[0] + xDiff, xy2[1] + yDiff]
         
         // if xy2 was moved, move xy1 accordingly
-        } else if (nodeType === 'xy2' && pathData[pI][nI + 1] && isNodePaired) {
-          const { xy1 } = pathData[pI][nI + 1]
-          pathData[pI][nI + 1].xy1Set = [ xy1[0] + xDiff, xy1[1] + yDiff]
+        } else if (nodeType === 'xy2' && pathData[pI][nextNi] && isNodePaired) {
+          const { xy1 } = pathData[pI][nextNi]
+          pathData[pI][nextNi].xy1Set = [ xy1[0] + xDiff, xy1[1] + yDiff]
         }
       }
-      outputSvgAndNodes(pI)
+      outputSvgAndNodes()
     }
 
     const onLetGo = () => {
       document.removeEventListener('mousemove', onDrag)
       document.removeEventListener('mouseup', onLetGo)
-      // svg.innerHTML = svgPath(pointData[pI])
       // draw = true
     } 
     const onGrab = () => {
@@ -165,18 +176,25 @@ function init() {
     node.addEventListener('mousedown', onGrab)
 
     node.addEventListener('click', ()=>{
-      indicator.innerHTML = `${nodeType}-${pI}-${nI}`
+      indicator.innerHTML = `${nodeType}-${pI}-${nI}-${pathData[pI][nI].letter}`
     })
 
   }
 
 
-  const svgPath = points => {
+  const svgPath = (pI, points) => {
   // console.log('points', points)
     const command = (point, i, arr) => {
+      
+      // prevI and nextI is different for first and last index
+      const lastIndex = pathData[pI].length - 1
+      const nextI = pathData[pI][i].closed ? 1 : i + 1
+      const prevI = i === 1 && pathData[pI][lastIndex].letter === 'Z' ? lastIndex - 1 : i - 1 
+      const prevPrevI = i === 1 && pathData[pI][lastIndex].letter === 'Z' ? lastIndex - 2 : i - 2 
+      
       // manually set value || calculated value
-      pathData[pI][i].xy1 = pathData[pI][i].xy1Set || controlPoint(arr[i - 1], arr[i - 2], point, false)
-      pathData[pI][i].xy2 = pathData[pI][i].xy2Set || controlPoint(point, arr[i - 1], arr[i + 1], true)
+      pathData[pI][i].xy1 = pathData[pI][i].xy1Set || controlPoint(arr[prevI], arr[prevPrevI], point, false)
+      pathData[pI][i].xy2 = pathData[pI][i].xy2Set || controlPoint(point, arr[prevI], arr[nextI], true)
 
       const { letter, xy1, xy2, xy } = pathData[pI][i]
       return pathData[pI][i].letter === 'C' 
@@ -184,8 +202,9 @@ function init() {
         : `${letter} ${xy[0]},${xy[1]}`
     }
 
+
     const d = points.reduce((acc, point, i, arr) => {
-      // if (i !== 0) console.log('command_within', command(point, i, arr))
+      if (!point) return `${acc} Z`
       const coord = i === 0
         ? `M ${point[0]},${point[1]}`
         : `${acc} ${command(point, i, arr)}`
@@ -237,8 +256,39 @@ function init() {
     }
     
     // prep next  
-    outputSvgAndNodes(pI)
+    outputSvgAndNodes()
     nI++
+  })
+
+  buttons.forEach(button=>{
+    if (button.dataset.c === 'z') button.addEventListener('click', ()=>{
+      pathData[pI][nI] = {
+        id: [pI, nI],
+        letter: 'C',
+        dxyAuto: true,
+        closed: true,
+        xy: pathData[pI][0].xy,
+      }
+
+      // reset xy1Set and xy2Set
+      if (pathData[pI][nI - 1] && pathData[pI][nI - 1].xy2Set) pathData[pI][nI - 1].xy2Set = null
+      pathData[pI][1].xy1Set = null
+
+      pathData[pI][nI + 1] = {
+        id: [pI, nI + 1],
+        letter: 'Z',
+      }
+      outputSvgAndNodes()
+      // console.log('pathData', pathData[pI])
+      pI++
+      nI = 0
+      pathData.push([])
+      colorData[pI] = {
+        fill: fill,
+        stroke: stroke,
+        strokeWidth: strokeWidth
+      }
+    })
   })
 }
 

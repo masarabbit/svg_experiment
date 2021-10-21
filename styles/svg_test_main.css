@@ -40,9 +40,10 @@ nav span {
   left: 0;
   width: 100%;
   height: 100%;
+  padding-top: 90px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   pointer-events: none;
 }
@@ -123,6 +124,10 @@ svg:hover {
 .xy { border: 1px solid rgb(52, 247, 237); }
 .xy1 { border: 1px solid rgb(247, 124, 52); }
 .xy2 { border: 1px solid rgb(241, 52, 247); }
+
+.node.z-index-plus {
+  z-index: 9;
+}
 
 .node {
   position: absolute;
