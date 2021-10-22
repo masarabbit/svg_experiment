@@ -122,8 +122,8 @@ function init() {
       const xDiff = prev[0] - newX
       const yDiff = prev[1] - newY
 
-      const nextNi = pathData[pI][nI].close ? 1 : nI + 1
-      const prevNi = nI === 1 && pathData[pI][pathData[pI].length -1].letter === 'Z' ? pathData[pI].length - 2 : nI -1 
+      const nextNi = pathData[pI][nI].closed ? 1 : nI + 1
+      const prevNi = nI === 1 && pathData[pI][pathData[pI].length -1].letter === 'Z' ? pathData[pI].length - 2 : nI - 1 
       // console.log(`next:${nextNi} - prev:${prevNi}`)
 
       if (nodeType === 'xy' && pathData[pI][nI].closed){
