@@ -1,4 +1,6 @@
 function init() {
+
+  // TODO add optional chaining and object parameter where appropriate ({ something, something })
   
   // adapted from ref below
   //ref https://codepen.io/francoisromain/pen/dzoZZj?editors=0010
@@ -134,27 +136,29 @@ function init() {
         pathData[pI][nI][nodeType] = [newX, newY]
         
         // moves xy1 and xy2 if applicable 
-        if (pathData[pI][nextNi] && pathData[pI][nextNi].xy1Set) {
+        if (pathData[pI][nextNi]?.xy1Set) {
           const { xy1Set: xy } = pathData[pI][nextNi]
           pathData[pI][nextNi].xy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
         }
-        if (pathData[pI][nI] && pathData[pI][nI].xy2Set) {
+        if (pathData[pI][nI]?.xy2Set) {
           const { xy2Set: xy } = pathData[pI][nI]
           pathData[pI][nI].xy2Set = [ xy[0] - xDiff, xy[1] - yDiff]
         } 
       } else {
         pathData[pI][nI][nodeType + 'Set'] = [newX, newY]
-        const isNodePaired = pathData[pI][nI].dxyAuto
-  
-        // if xy1 was moved, move xy2 accordingly
-        if (nodeType === 'xy1' && pathData[pI][prevNi] && isNodePaired) {
-          const { xy2 } = pathData[pI][prevNi]
-          pathData[pI][prevNi].xy2Set = [ xy2[0] + xDiff, xy2[1] + yDiff]
+
         
-        // if xy2 was moved, move xy1 accordingly
-        } else if (nodeType === 'xy2' && pathData[pI][nextNi] && isNodePaired) {
-          const { xy1 } = pathData[pI][nextNi]
-          pathData[pI][nextNi].xy1Set = [ xy1[0] + xDiff, xy1[1] + yDiff]
+        if (pathData[pI][nI].dxyAuto){
+            // if xy1 was moved, move xy2 accordingly
+          if (nodeType === 'xy1' && pathData[pI][prevNi]) {
+            const { xy2 } = pathData[pI][prevNi]
+            pathData[pI][prevNi].xy2Set = [ xy2[0] + xDiff, xy2[1] + yDiff]
+          
+          // if xy2 was moved, move xy1 accordingly
+          } else if (nodeType === 'xy2' && pathData[pI][nextNi]) {
+            const { xy1 } = pathData[pI][nextNi]
+            pathData[pI][nextNi].xy1Set = [ xy1[0] + xDiff, xy1[1] + yDiff]
+          }
         }
       }
       outputSvgAndNodes()
