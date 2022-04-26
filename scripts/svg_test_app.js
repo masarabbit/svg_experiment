@@ -21,6 +21,10 @@ function init() {
   //* maybe this should be object?
   //* record letter etc
 
+  // const drawData = {
+
+  // }
+
   let pI = 0
   let nI = 0
   const fill = 'none'
@@ -43,7 +47,7 @@ function init() {
   }
 
 
-  const controlPoint = (current, previous, next, reverse) => {
+  const controlPoint = ({ current, previous, next, reverse }) => {
     const prevPoint = previous || current
     const nextPoint = next || current
     const createdLine = line(prevPoint, nextPoint)
@@ -53,7 +57,6 @@ function init() {
     const x = current[0] + Math.cos(lineAngle) * lineLength || current[0]
     const y = current[1] + Math.sin(lineAngle) * lineLength || current[1]
 
-    //TODO roundup x and y?
     return [Math.round(x), Math.round(y)]
   }
 
@@ -64,11 +67,11 @@ function init() {
   }
 
   const nodeLines = pI =>{
-    const pointData = pathData[pI].map(n=>{
+    const pointData = pathData[pI].map(n =>{
       if(!n) return ''
       return { xy: n.xy, xy1: n.xy1, xy2: n.xy2 }
     })
-    return pointData.map((n,i)=>{
+    return pointData.map((n, i)=>{
       if(!n.xy) return ''
       const leftLine = n.xy1[0] ? nodeLine(n.xy,n.xy2,'red') : ''
       const rightLine = pointData[i + 1] ? nodeLine(n.xy,pointData[i + 1].xy1,'blue') : ''
@@ -79,24 +82,24 @@ function init() {
 
 
   const outputSvgAndNodes = () =>{    
-    svg.innerHTML = pathData.map((data,i)=>{
-      return svgPath(i,data.map(n=>n.xy)) + nodeLines(i)
+    svg.innerHTML = pathData.map((data, i)=>{
+      return svgPath(i, data.map(n => n.xy)) + nodeLines(i)
     }).join('')
 
     display.innerHTML = ''
     // console.log('pathData', pathData[pI].filter(n=>n.xy))
-    nodeTypes.forEach(nodeType=>{
-      pathData.forEach((data,pI)=>{
-        data.filter(n=>n.xy).map(n=>n[nodeType]).forEach((p,nI)=>{
+    nodeTypes.forEach(nodeType => {
+      pathData.forEach((data, pI) => {
+        data.filter(n => n.xy).map(n => n[nodeType]).forEach((p, nI)=>{
           // console.log('p',p, nodeType)
           if (!p[0]) return
-          addNode(p[0],p[1],pI,nI,nodeType)
+          addNode({ x:p[0], y:p[1], pI, nI, nodeType})
         })
       })
     })
   }
 
-  const addNode = (x,y,pI,nI,nodeType) =>{
+  const addNode = ({ x, y, pI, nI, nodeType }) =>{
     const node = document.createElement('div')
     if (pathData[pI][nI].closed) node.classList.add('z-index-plus')
     node.classList.add('node')
@@ -104,8 +107,8 @@ function init() {
     if (`${pI}-${nI}` === selectedNode) node.classList.add('selected')
     node.style.left = `${x}px`
     node.style.top = `${y}px`  
-    node.dataset.pI = `${pI}`
-    node.dataset.nI = `${nI}` //todo change this
+    node.dataset.pI = pI
+    node.dataset.nI = nI //todo change this
     display.appendChild(node)
 
     const onDrag = e => {
@@ -125,7 +128,9 @@ function init() {
       const yDiff = prev[1] - newY
 
       const nextNi = pathData[pI][nI].closed ? 1 : nI + 1
-      const prevNi = nI === 1 && pathData[pI][pathData[pI].length -1].letter === 'Z' ? pathData[pI].length - 2 : nI - 1 
+      const prevNi = nI === 1 && pathData[pI][pathData[pI].length -1].letter === 'Z' 
+        ? pathData[pI].length - 2 
+        : nI - 1 
       // console.log(`next:${nextNi} - prev:${prevNi}`)
 
       if (nodeType === 'xy' && pathData[pI][nI].closed){
@@ -138,11 +143,11 @@ function init() {
         // moves xy1 and xy2 if applicable 
         if (pathData[pI][nextNi]?.xy1Set) {
           const { xy1Set: xy } = pathData[pI][nextNi]
-          pathData[pI][nextNi].xy1Set = [ xy[0] - xDiff, xy[1] - yDiff]
+          pathData[pI][nextNi].xy1Set = [xy[0] - xDiff, xy[1] - yDiff]
         }
         if (pathData[pI][nI]?.xy2Set) {
           const { xy2Set: xy } = pathData[pI][nI]
-          pathData[pI][nI].xy2Set = [ xy[0] - xDiff, xy[1] - yDiff]
+          pathData[pI][nI].xy2Set = [xy[0] - xDiff, xy[1] - yDiff]
         } 
       } else {
         pathData[pI][nI][nodeType + 'Set'] = [newX, newY]
@@ -152,12 +157,12 @@ function init() {
             // if xy1 was moved, move xy2 accordingly
           if (nodeType === 'xy1' && pathData[pI][prevNi]) {
             const { xy2 } = pathData[pI][prevNi]
-            pathData[pI][prevNi].xy2Set = [ xy2[0] + xDiff, xy2[1] + yDiff]
+            pathData[pI][prevNi].xy2Set = [xy2[0] + xDiff, xy2[1] + yDiff]
           
           // if xy2 was moved, move xy1 accordingly
           } else if (nodeType === 'xy2' && pathData[pI][nextNi]) {
             const { xy1 } = pathData[pI][nextNi]
-            pathData[pI][nextNi].xy1Set = [ xy1[0] + xDiff, xy1[1] + yDiff]
+            pathData[pI][nextNi].xy1Set = [xy1[0] + xDiff, xy1[1] + yDiff]
           }
         }
       }
@@ -175,15 +180,16 @@ function init() {
       // draw = false
     }
     
-    node.addEventListener('mouseenter',()=>draw = false)
-    node.addEventListener('mouseleave',()=>draw = true)
+    node.addEventListener('mouseenter',()=> draw = false)
+    node.addEventListener('mouseleave',()=> draw = true)
     node.addEventListener('mousedown', onGrab)
 
-    node.addEventListener('click', ()=>{
+    node.addEventListener('click', ()=> {
       indicator.innerHTML = `${nodeType}-${pI}-${nI}-${pathData[pI][nI].letter}`
     })
 
   }
+
 
 
   const svgPath = (pI, points) => {
@@ -191,17 +197,29 @@ function init() {
     const command = (point, i, arr) => {
       
       // prevI and nextI is different for first and last index
+      const { closed, xy1Set, xy2Set } = pathData[pI][i]
       const lastIndex = pathData[pI].length - 1
-      const nextI = pathData[pI][i].closed ? 1 : i + 1
-      const prevI = i === 1 && pathData[pI][lastIndex].letter === 'Z' ? lastIndex - 1 : i - 1 
-      const prevPrevI = i === 1 && pathData[pI][lastIndex].letter === 'Z' ? lastIndex - 2 : i - 2 
+      const nextI = closed ? 1 : i + 1
+
+      const isLastZ = i === 1 && pathData[pI][lastIndex].letter === 'Z'
+      const prevI = isLastZ ? lastIndex - 1 : i - 1 
+      const prevPrevI = isLastZ ? lastIndex - 2 : i - 2 
       
       // manually set value || calculated value
-      pathData[pI][i].xy1 = pathData[pI][i].xy1Set || controlPoint(arr[prevI], arr[prevPrevI], point, false)
-      pathData[pI][i].xy2 = pathData[pI][i].xy2Set || controlPoint(point, arr[prevI], arr[nextI], true)
+      pathData[pI][i].xy1 = xy1Set || controlPoint({
+        current: arr[prevI], 
+        previous: arr[prevPrevI], 
+        next: point
+      })
+      pathData[pI][i].xy2 = xy2Set || controlPoint({
+        current: point, 
+        previous: arr[prevI], 
+        next: arr[nextI], 
+        reverse: true
+      })
 
       const { letter, xy1, xy2, xy } = pathData[pI][i]
-      return pathData[pI][i].letter === 'C' 
+      return letter === 'C' 
         ? `${letter} ${xy1[0]},${xy1[1]} ${xy2[0]},${xy2[1]} ${xy[0]},${xy[1]}`
         : `${letter} ${xy[0]},${xy[1]}`
     }
@@ -226,14 +244,14 @@ function init() {
   // }
 
 
-  display.addEventListener('mousemove',(e)=>{
+  display.addEventListener('mousemove', e =>{
     const { x: offSetX, y: offSetY } = display.getBoundingClientRect()
     indicator.innerHTML = `x:${e.clientX - offSetX} y:${e.clientY - offSetY}`
   })
   
   
   //* throttle this?
-  display.addEventListener('click', (e)=>{
+  display.addEventListener('click', e =>{
     if (!draw) return
     const { x: offSetX, y: offSetY } = display.getBoundingClientRect()
 
@@ -251,7 +269,7 @@ function init() {
     }
 
     // resets xy2Set if set already
-    if (pathData[pI][nI - 1] && pathData[pI][nI - 1].xy2Set) pathData[pI][nI - 1].xy2Set = null
+    if (pathData[pI][nI - 1]?.xy2Set) pathData[pI][nI - 1].xy2Set = null
 
     colorData[pI] = {
       fill: fill,
@@ -264,8 +282,8 @@ function init() {
     nI++
   })
 
-  buttons.forEach(button=>{
-    if (button.dataset.c === 'z') button.addEventListener('click', ()=>{
+  buttons.forEach( button =>{
+    if (button.dataset.c === 'z') button.addEventListener('click', ()=> {
       pathData[pI][nI] = {
         id: [pI, nI],
         letter: 'C',
@@ -275,7 +293,7 @@ function init() {
       }
 
       // reset xy1Set and xy2Set
-      if (pathData[pI][nI - 1] && pathData[pI][nI - 1].xy2Set) pathData[pI][nI - 1].xy2Set = null
+      if (pathData[pI][nI - 1]?.xy2Set) pathData[pI][nI - 1].xy2Set = null
       pathData[pI][1].xy1Set = null
 
       pathData[pI][nI + 1] = {
