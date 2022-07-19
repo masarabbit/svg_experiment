@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="./styles/svg_test_main.css" />
+  <script src ="./scripts/drawPath.js" charset="utf-8"></script>
+
+  <title>draw test</title>
+</head>
+<body>
+
+  <nav> 
+    <span>draw test</span> 
+    <button class="button" data-c="n">N</button>
+    <button class="button" data-c="z">Z</button>
+    <button class="button" data-c="c">C</button>
+  </nav>
+
+  <div class="wrapper">
+    <div class="output">
+      <svg width="100%" height="100%"  version="1.1" xmlns="http://www.w3.org/2000/svg" class="svg">
+      </svg>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <div class="display"></div>
+  </div>
+
+  <div class="wrapper two">
+    <div class="control">
+      <textarea class="svg_input"></textarea>
+      <div class="coord_output"></div>
+      <textarea class="coords_input"></textarea>
+      <button class="button" data-c="output">output</button>
+    </div>
+  </div>
+
+  <div class="indicator"></div>
+</body>
+</html>

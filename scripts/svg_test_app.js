@@ -83,7 +83,8 @@ function init() {
 
   const outputSvgAndNodes = () =>{    
     svg.innerHTML = pathData.map((data, i)=>{
-      return svgPath(i, data.map(n => n.xy)) + nodeLines(i)
+      // return svgPath(i, data.map(n => n.xy)) + nodeLines(i) // TODO comment his back in for nodes
+      return svgPath(i, data.map(n => n.xy))
     }).join('')
 
     display.innerHTML = ''
@@ -93,7 +94,7 @@ function init() {
         data.filter(n => n.xy).map(n => n[nodeType]).forEach((p, nI)=>{
           // console.log('p',p, nodeType)
           if (!p[0]) return
-          addNode({ x:p[0], y:p[1], pI, nI, nodeType})
+          // addNode({ x:p[0], y:p[1], pI, nI, nodeType}) // TODO comment his back in for nodes
         })
       })
     })
