@@ -4,8 +4,8 @@ import { updatePath, addPath, addNode } from './scripts/pathAction.js'
 
 function init() {
 
-  const svgPath = id =>{
-    const { fill, stroke, strokeWidth } = settings
+  const svgPath = (style, id) =>{
+    const { fill, stroke, strokeWidth } = style
     return `<svg id="svg-${id}" width="100%" height="100%" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"></svg>`
   }
 
@@ -14,7 +14,14 @@ function init() {
     const newPoint = {
       letter: 'L',
       pos,
-      isCurve: false
+      isCurve: false,
+      cNode: {
+        prev: { pos: { x: 0, y: 0 }},
+        next: { pos: { x: 0, y: 0 }}
+      },
+      indexPrev: null,
+      index: null,
+      indexNext: null,
     }
     path.points.push(newPoint)
     path.svg.innerHTML = `<path d="${path.points.map(p => {
@@ -23,11 +30,19 @@ function init() {
     })}"></path>`
     updatePath(path)
     addNode({ pos, path, point: newPoint })
+    path.points.forEach((p, i) => {
+      p.indexPrev = i === 0 ? path.points.length - 1 : i - 1
+      p.prevPoint = path.points[p.indexPrev]
+      p.index = i
+      p.indexNext = i === path.points.length - 1 ? 0 : i + 1
+      p.nextPoint = path.points[p.indexNext]
+      p.path = path
+    })
     console.log(path.points)
   }
 
   const addSvg = path => {
-    const newSvg = svgPath(path.id)
+    const newSvg = svgPath(path.svgStyle, path.id)
     const containerDiv = document.createElement('div')
     containerDiv.innerHTML = newSvg
     elements.output.appendChild(containerDiv.firstChild)

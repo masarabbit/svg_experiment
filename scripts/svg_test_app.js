@@ -205,6 +205,8 @@ function init() {
       const isLastZ = i === 1 && pathData[pI][lastIndex].letter === 'Z'
       const prevI = isLastZ ? lastIndex - 1 : i - 1 
       const prevPrevI = isLastZ ? lastIndex - 2 : i - 2 
+
+      console.log('test', arr[prevI], arr[prevPrevI], point)
       
       // manually set value || calculated value
       pathData[pI][i].xy1 = xy1Set || controlPoint({

@@ -7,10 +7,12 @@ const elements = {
 
 const settings = {
   paths: [],
-  fill: 'transparent',
-  stroke: 'grey',
-  strokeWidth: 1,
-  // draw: true,
+  svgStyle: {
+    fill: 'transparent',
+    stroke: 'grey',
+    strokeWidth: 1,
+    smoothing: 0.2,
+  },
   addNewPath: true,
   currentPath: null,
   idCount: 0,
@@ -26,8 +28,6 @@ export {
 
   // const coordOutput = document.querySelector('.coord_output')
   // const output = document.querySelector('.output')
-
-  // 
   // const offSetX = display.getBoundingClientRect().x
   // const offSetY = display.getBoundingClientRect().y
   // const line = document.querySelector('.line')

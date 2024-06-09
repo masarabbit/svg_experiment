@@ -2,27 +2,38 @@ import { elements, settings } from './settings.js'
 import { setStyles } from './utils.js'
 import { addTouchAction } from './addTouchAction.js'
 
+const xY = pos => `${pos.x} ${pos.y}`
+
+
 const updatePath = path => {
   const newPath = path.points.map(n => {
-    const { letter, pos: { x, y } } = n
-    return `${letter} ${x} ${y}`
-  }).join(', ')
+    const { letter, pos, cNode: { prev, next } } = n
+    return letter === 'C'
+        ? `${letter} ${xY(prev.pos)}, ${xY(next.pos)}, ${xY(pos)}`
+        : `${letter} ${xY(pos)}`
+  }).join(' ')
   elements.svgInput.value = newPath
   path.svg.innerHTML = `<path d="${newPath}"></path>`
 }
 
 const addPath = pos => {
-  const { fill, stroke, strokeWidth, idCount } = settings
   settings.paths.push({
     points: [{
       letter: 'M',
-      pos
+      pos,
+      isCurve: false,
+      cNode: {
+        prev: {
+          pos: { x: 0, y: 0 }
+        },
+        next: {
+          pos: { x: 0, y: 0 }
+        }
+      },
     }],
     svg: null,
-    fill,
-    stroke,
-    strokeWidth,
-    id: idCount
+    svgStyle: settings.svgStyle,
+    id: settings.idCount
   })
 }
 
