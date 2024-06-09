@@ -19,9 +19,9 @@ function init() {
         prev: { pos: { x: 0, y: 0 }},
         next: { pos: { x: 0, y: 0 }}
       },
-      indexPrev: null,
       index: null,
-      indexNext: null,
+      // indexPrev: null,
+      // indexNext: null,
     }
     path.points.push(newPoint)
     path.svg.innerHTML = `<path d="${path.points.map(p => {
@@ -31,12 +31,20 @@ function init() {
     updatePath(path)
     addNode({ pos, path, point: newPoint })
     path.points.forEach((p, i) => {
-      p.indexPrev = i === 0 ? path.points.length - 1 : i - 1
-      p.prevPoint = path.points[p.indexPrev]
       p.index = i
-      p.indexNext = i === path.points.length - 1 ? 0 : i + 1
-      p.nextPoint = path.points[p.indexNext]
       p.path = path
+      const indexPrev = i === 0 && path.isClosed 
+        ? path.isClosed 
+          ? path.points.length - 1 
+          : null
+        : i - 1
+      p.prevPoint = !path.isClosed && i === 0 ? null : path.points[indexPrev]
+      const indexNext = i === path.points.length - 1 
+        ? path.isClosed 
+          ? 0
+          : null 
+        : i + 1
+      p.nextPoint = !path.isClosed && i === path.points.length - 1 ? null : path.points[indexNext]
     })
     console.log(path.points)
   }

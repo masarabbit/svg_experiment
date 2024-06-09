@@ -4,7 +4,7 @@ import { addTouchAction } from './addTouchAction.js'
 
 const xY = pos => `${pos.x} ${pos.y}`
 
-
+// TODO perhaps rename prev and next, because it's misleading
 const updatePath = path => {
   const newPath = path.points.map(n => {
     const { letter, pos, cNode: { prev, next } } = n
@@ -47,7 +47,7 @@ const addNode = ({ pos, path, point }) => {
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
-  addTouchAction(newNode)
+  addTouchAction({ node: newNode })
 }
 
 export {
