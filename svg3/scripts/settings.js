@@ -2,7 +2,8 @@ const elements = {
   display: document.querySelector('.display'),
   output: document.querySelector('.output'),
   svgInput: document.querySelector('.svg-input'),
-  buttons: document.querySelectorAll('.btn')
+  buttons: document.querySelectorAll('.btn'),
+  lineOutput: document.querySelector('.line-output'),
 }
 
 const settings = {

@@ -1,6 +1,6 @@
 import { setStyles, client, addEvents } from './utils.js'
 import { settings, elements } from './settings.js'
-import { updatePath } from './pathAction.js'
+import { updatePath, addLeftCnode, addRightCnode, addPath } from './pathAction.js'
 
 const roundedClient = (e, type) => Math.round(client(e, type))
 
@@ -10,31 +10,6 @@ const mouse = {
   down: (el, e, a) => addEvents(el, e, a, ['mousedown', 'touchstart']),
   enter: (el, e, a) => addEvents(el, e, a, ['mouseenter', 'touchstart']),
   leave: (el, e, a) => addEvents(el, e, a, ['mouseleave'])
-}
-
-const line = (pointA, pointB) => {
-  const lengthX = pointB.x - pointA.x
-  const lengthY = pointB.y - pointA.y
-  return {
-    length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
-    angle: Math.atan2(lengthY, lengthX)
-  }
-}
-
-const controlPoint = ({ currentPos, prevPos, nextPos, reverse }) => {
-  const prevPoint = prevPos || currentPos
-  const nextPoint = nextPos || currentPos
-  const createdLine = line(prevPoint, nextPoint)
-  const lineAngle = createdLine.angle + (reverse ? Math.PI : 0)
-  const lineLength = createdLine.length * settings.svgStyle.smoothing
-
-  const x = currentPos.x + Math.cos(lineAngle) * lineLength || currentPos.x
-  const y = currentPos.y + Math.sin(lineAngle) * lineLength || currentPos.y
-
-  return { 
-    x: Math.round(x), 
-    y: Math.round(y) 
-  }
 }
 
 // const addMarker = ({ x, y }) => {
@@ -47,85 +22,63 @@ const controlPoint = ({ currentPos, prevPos, nextPos, reverse }) => {
 // }
 
 
-// TODO need to test logic to set default cNode pos
+const applyDiff = ({ pos, diff }) => {
+  pos.x += diff.x
+  pos.y += diff.y
+}
 
-const addCnodeEl = ({ pos, path, point, data, isRightNode }) => {
-  const newNode = {
-    el: Object.assign(document.createElement('div'), 
-    { className: `node c ${isRightNode ? 'next' : 'prev'}` }),
-    pos,
-    path,
-    point,
-    isRightNode,
+const cNodeLineHtml = lineData => {
+  const { color, start, end } = lineData
+  return `<line stroke="${color}" stroke-width="1" x1="${start.pos.x}" y1="${start.pos.y}" x2="${end.pos.x}" y2="${end.pos.y}"/>`
+}
+
+const updateLines = path => {
+  elements.lineOutput.innerHTML = `<svg class="line" width="100%" height="100%" fill="transparent">
+  ${path.points.map(p => {
+    const leftLine = p.cNode.leftLine 
+      ? cNodeLineHtml(p.cNode.leftLine)
+      : ''
+    const rightLine = p.cNode.rightLine 
+      ? cNodeLineHtml(p.cNode.rightLine)
+      : ''
+    return leftLine + rightLine
+  }).join('')}
+</svg>`
+}
+
+const degToRad = deg => deg / (180 / Math.PI)
+const radToDeg = rad => Math.round(rad * (180 / Math.PI))
+const angleTo = ({ a, b }) => Math.atan2(b.y - a.y, b.x - a.x)
+
+const rotateCoord = ({ angle, origin, pos }) =>{
+  const a = angle
+  const aX = pos.x - origin.x
+  const aY = pos.y - origin.y
+  return {
+    x: (aX * Math.cos(a)) - (aY * Math.sin(a)) + origin.x,
+    y: (aX * Math.sin(a)) + (aY * Math.cos(a)) + origin.y,
   }
-  // TODO this bit isn't right
-  if (isRightNode) {
- 
-    // point.cNode.next.node = newNode
-  } 
-  // else {
-  //   point.nextPoint.cNode.prev.node = newNode
-  // }
-  data.node = newNode
-
-  console.log('test 1', point.cNode[isRightNode ? 'next' : 'prev'])
-  setStyles(newNode)
-  elements.display.append(newNode.el)
-  addTouchAction({ node: newNode, isRightNode, data })
 }
 
-const addCnode = (point, isRightNode) => {
-  point.letter = 'C'
-  point.isCurve = true
-  point.cNode.prev.pos = isRightNode 
-    ? controlPoint({
-      currentPos: point.prevPoint.pos || point.pos,
-      prevPos: point.prevPoint?.prevPoint?.pos || point.pos,
-      nextPos: point.pos,
-    })
-    : point.prevPoint?.pos || point.pos
-
-  point.cNode.prev.point = point
-
-  point.cNode.next.pos = isRightNode
-    ? point.pos
-    : controlPoint({
-      currentPos: point.pos,
-      prevPos: point.prevPoint?.pos || point.pos,
-      nextPos: point.nextPoint?.pos || point.pos,
-      reverse: true
-    })
-
-  point.cNode.next.point = point.prevPoint || point
-
-
-  updatePath(point.path)
-
-  addCnodeEl(
-    isRightNode
-      ? { 
-          pos: point.cNode.prev.pos,
-          path: point.path,
-          point,
-          data: point.cNode.prev,
-          isRightNode,
-        }
-      : {
-          pos: point.cNode.next.pos,
-          path: point.path,
-          point,
-          data: point.cNode.next,
-        } 
-  )
+const getOffsetPos = ({ pos, distance, angle }) => {
+  return {
+    x: pos.x + (distance * Math.cos(degToRad(angle - 90))),
+    y: pos.y + (distance * Math.sin(degToRad(angle - 90)))
+  }
 }
 
-const addTouchAction = ({ node, isRightNode, data }) =>{
+const addTouchAction = ({ node, data }) =>{
   const onGrab = () =>{
     mouse.up(document, 'add', onLetGo)
     mouse.move(document, 'add', onDrag)
     if (!data && settings.drawMode === 'curve' && node.point.letter !== 'C') {
-      if (node.point.letter !== 'M') addCnode(node.point)
-      if (node.point.nextPoint) addCnode(node.point.nextPoint, true)
+      //* add cNodes
+      if (node.point.letter !== 'M') addLeftCnode(node.point)
+      if (node.point.nextPoint) addRightCnode(node.point.nextPoint)
+      if (node.point.cNode.left) node.point.cNode.left.pair = node.point.cNode.right
+      if (node.point.cNode.right) node.point.cNode.right.pair = node.point.cNode.left
+
+      updateLines(node.path)
     }
   }
   const onDrag = e =>{
@@ -136,31 +89,49 @@ const addTouchAction = ({ node, isRightNode, data }) =>{
     }
     if (data) {
       ;[data, node].forEach(item => item.pos = pos)
+      const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
+      const newPos = getOffsetPos({
+        angle: radToDeg(angleTo({
+          a: axis,
+          b: node.pos,
+        })),
+        pos: node.pair.pos,
+        distance: 1,
+      })
+
+      // const diff = {
+      //   x: axis.x - pos.x,
+      //   y: axis.y - pos.y
+      // }
+      // node.pair.pos.x = axis.x + diff.x
+      // node.pair.pos.y = axis.y + diff.y
+      node.pair.pos.x = newPos.x
+      node.pair.pos.y = newPos.y
+      setStyles(node.pair)
+
+      // TODO instead of mirroring position, need to just mirror angle
+      // * current code doesn't return the correct coord (angle seems to be off)
+      // console.log(diff)
     } else {
+      //* move cNode pairs when main node is moved
       const diff = {
         x: pos.x - node.point.pos.x,
         y: pos.y - node.point.pos.y
       }
       ;[node.point, node].forEach(item => item.pos = pos)
       if (node.point.letter === 'C') {
-        console.log('test 2', 
-          node.point.cNode.next.node,
-          node.point.cNode.prev.node
-        )
-        if (node.point.cNode.next.node) {
-          node.point.cNode.next.pos.x += diff.x
-          node.point.cNode.next.pos.y += diff.y
-          setStyles(node.point.cNode.next.node)
+        if (node.point.cNode.left) {
+          applyDiff({ pos: node.point.cNode.left.pos, diff })
+          setStyles(node.point.cNode.left)
         }
-
-        if (node.point.nextPoint.cNode.prev.node) {
-          node.point.nextPoint.cNode.prev.pos.x += diff.x
-          node.point.nextPoint.cNode.prev.pos.y += diff.y
-          setStyles(node.point.nextPoint.cNode.prev.node)
+        if (node.point.cNode.right) {
+          applyDiff({ pos: node.point.cNode.right.pos, diff })
+          setStyles(node.point.cNode.right)
         }
       }
     }
     setStyles(node)
+    updateLines(node.path)
     updatePath(node.path)
   }
   const onLetGo = () => {

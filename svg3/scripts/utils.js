@@ -12,9 +12,16 @@ const addEvents = (el, event, action, array) => {
   array.forEach(a => event === 'remove' ? el.removeEventListener(a, action) : el.addEventListener(a, action))
 }
 
+const newElement = html => {
+  const containerDiv = document.createElement('div')
+  containerDiv.innerHTML = html
+  return containerDiv.firstChild
+}
+
 export {
   px,
   setStyles,
   client,
-  addEvents
+  addEvents,
+  newElement
 }

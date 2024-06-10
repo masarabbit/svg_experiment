@@ -1,6 +1,7 @@
 import { settings, elements } from './scripts/settings.js'
 
 import { updatePath, addPath, addNode } from './scripts/pathAction.js'
+import { newElement } from './scripts/utils.js'
 
 function init() {
 
@@ -16,12 +17,12 @@ function init() {
       pos,
       isCurve: false,
       cNode: {
-        prev: { pos: { x: 0, y: 0 }},
-        next: { pos: { x: 0, y: 0 }}
+        xy1: { pos: { x: 0, y: 0 }},
+        xy2: { pos: { x: 0, y: 0 }},
+        left: null,
+        right: null
       },
       index: null,
-      // indexPrev: null,
-      // indexNext: null,
     }
     path.points.push(newPoint)
     path.svg.innerHTML = `<path d="${path.points.map(p => {
@@ -50,10 +51,7 @@ function init() {
   }
 
   const addSvg = path => {
-    const newSvg = svgPath(path.svgStyle, path.id)
-    const containerDiv = document.createElement('div')
-    containerDiv.innerHTML = newSvg
-    elements.output.appendChild(containerDiv.firstChild)
+    elements.output.appendChild(newElement(svgPath(path.svgStyle, path.id)))
     path.svg = document.querySelector(`#svg-${path.id}`)
   }
 
