@@ -18,10 +18,22 @@ const newElement = html => {
   return containerDiv.firstChild
 }
 
+const distanceBetween = (a, b) => Math.round(Math.sqrt(Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2)))
+
+// const addMarker = ({ x, y }) => {
+//   const marker = {
+//     el: Object.assign(document.createElement('div'), { className: 'c node' }),
+//     pos: { x, y }
+//   }
+//   elements.display.append(marker.el)
+//   setStyles(marker)
+// }
+
 export {
   px,
   setStyles,
   client,
   addEvents,
-  newElement
+  newElement,
+  distanceBetween,
 }

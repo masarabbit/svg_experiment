@@ -1,6 +1,7 @@
-import { setStyles, client, addEvents } from './utils.js'
+import { setStyles, client, addEvents, distanceBetween,  } from './utils.js'
+import { getOffsetPos, radToDeg, angleTo } from './angleUtils.js'
 import { settings, elements } from './settings.js'
-import { updatePath, addLeftCnode, addRightCnode, addPath } from './pathAction.js'
+import { updatePath, addLeftCnode, addRightCnode } from './pathAction.js'
 
 const roundedClient = (e, type) => Math.round(client(e, type))
 
@@ -11,15 +12,6 @@ const mouse = {
   enter: (el, e, a) => addEvents(el, e, a, ['mouseenter', 'touchstart']),
   leave: (el, e, a) => addEvents(el, e, a, ['mouseleave'])
 }
-
-// const addMarker = ({ x, y }) => {
-//   const marker = {
-//     el: Object.assign(document.createElement('div'), { className: 'c node' }),
-//     pos: { x, y }
-//   }
-//   elements.display.append(marker.el)
-//   setStyles(marker)
-// }
 
 
 const applyDiff = ({ pos, diff }) => {
@@ -46,32 +38,12 @@ const updateLines = path => {
 </svg>`
 }
 
-const degToRad = deg => deg / (180 / Math.PI)
-const radToDeg = rad => Math.round(rad * (180 / Math.PI))
-const angleTo = ({ a, b }) => Math.atan2(b.y - a.y, b.x - a.x)
-
-const rotateCoord = ({ angle, origin, pos }) =>{
-  const a = angle
-  const aX = pos.x - origin.x
-  const aY = pos.y - origin.y
-  return {
-    x: (aX * Math.cos(a)) - (aY * Math.sin(a)) + origin.x,
-    y: (aX * Math.sin(a)) + (aY * Math.cos(a)) + origin.y,
-  }
-}
-
-const getOffsetPos = ({ pos, distance, angle }) => {
-  return {
-    x: pos.x + (distance * Math.cos(degToRad(angle - 90))),
-    y: pos.y + (distance * Math.sin(degToRad(angle - 90)))
-  }
-}
 
 const addTouchAction = ({ node, data }) =>{
   const onGrab = () =>{
     mouse.up(document, 'add', onLetGo)
     mouse.move(document, 'add', onDrag)
-    if (!data && settings.drawMode === 'curve' && node.point.letter !== 'C') {
+    if (!data && settings.drawMode === 'curve') {
       //* add cNodes
       if (node.point.letter !== 'M') addLeftCnode(node.point)
       if (node.point.nextPoint) addRightCnode(node.point.nextPoint)
@@ -81,6 +53,8 @@ const addTouchAction = ({ node, data }) =>{
       updateLines(node.path)
     }
   }
+
+
   const onDrag = e =>{
     const { left, top } = elements.display.getBoundingClientRect()
     const pos = {
@@ -89,29 +63,18 @@ const addTouchAction = ({ node, data }) =>{
     }
     if (data) {
       ;[data, node].forEach(item => item.pos = pos)
+
+      //* move cNode pair based on cNode position
       const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
-      const newPos = getOffsetPos({
+      node.pair.pos = getOffsetPos({
         angle: radToDeg(angleTo({
           a: axis,
           b: node.pos,
-        })),
-        pos: node.pair.pos,
-        distance: 1,
+        })) + 180,
+        pos: axis,
+        distance: distanceBetween(axis, node.pair.pos),
       })
-
-      // const diff = {
-      //   x: axis.x - pos.x,
-      //   y: axis.y - pos.y
-      // }
-      // node.pair.pos.x = axis.x + diff.x
-      // node.pair.pos.y = axis.y + diff.y
-      node.pair.pos.x = newPos.x
-      node.pair.pos.y = newPos.y
       setStyles(node.pair)
-
-      // TODO instead of mirroring position, need to just mirror angle
-      // * current code doesn't return the correct coord (angle seems to be off)
-      // console.log(diff)
     } else {
       //* move cNode pairs when main node is moved
       const diff = {
