@@ -81,6 +81,7 @@ const addCnodeEl = ({ point, data, isRightNode }) => {
     path: point.path,
     point,
     isRightNode,
+    data
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
@@ -128,9 +129,9 @@ const addRightCnode = point => {
   point.letter = 'C'
   point.isCurve = true
   point.cNode.xy1.pos = cNodePos({
-      currentPos: point.prevPoint.pos || point.pos,
-      prevPos: point.prevPoint?.prevPoint?.pos || point.pos,
-      nextPos: point.pos,
+      currentPos: point.prevPoint.pos || point.nextPoint.pos,
+      prevPos: point.prevPoint?.prevPoint?.pos || point.nextPoint.pos,
+      nextPos: point.pos || point.nextPoint.pos,
     })
 
   point.cNode.xy1.point = point

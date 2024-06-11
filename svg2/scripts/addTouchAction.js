@@ -43,7 +43,7 @@ const addTouchAction = ({ node, data }) =>{
   const onGrab = () =>{
     mouse.up(document, 'add', onLetGo)
     mouse.move(document, 'add', onDrag)
-    if (!data && settings.drawMode === 'curve') {
+    if (!data && settings.drawMode === 'curve' && !node.point.cNode.left && !node.point.cNode.right) {
       //* add cNodes
       if (node.point.letter !== 'M') addLeftCnode(node.point)
       if (node.point.nextPoint) addRightCnode(node.point.nextPoint)
@@ -63,18 +63,21 @@ const addTouchAction = ({ node, data }) =>{
     }
     if (data) {
       ;[data, node].forEach(item => item.pos = pos)
-
-      //* move cNode pair based on cNode position
-      const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
-      node.pair.pos = getOffsetPos({
-        angle: radToDeg(angleTo({
-          a: axis,
-          b: node.pos,
-        })) + 180,
-        pos: axis,
-        distance: distanceBetween(axis, node.pair.pos),
-      })
-      setStyles(node.pair)
+      if (node.pair) {
+        //* move cNode pair based on cNode position
+        const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
+        ;[node.pair.data, node.pair].forEach(item => {
+          item.pos = getOffsetPos({
+            angle: radToDeg(angleTo({
+              a: axis,
+              b: node.pos,
+            })) + 180,
+            pos: axis,
+            distance: distanceBetween(axis, node.pair.pos),
+          })
+        })
+        setStyles(node.pair)
+      }
     } else {
       //* move cNode pairs when main node is moved
       const diff = {
@@ -82,13 +85,23 @@ const addTouchAction = ({ node, data }) =>{
         y: pos.y - node.point.pos.y
       }
       ;[node.point, node].forEach(item => item.pos = pos)
+
+
+
+      // TODO this bit isn't quite right - the movement of cNode and corresponding coord is not in sync
+
       if (node.point.letter === 'C') {
         if (node.point.cNode.left) {
-          applyDiff({ pos: node.point.cNode.left.pos, diff })
+          console.log(node.point.cNode.left)
+          ;[node.point.cNode.left, node.point.cNode.left.data].forEach(item => {
+            applyDiff({ pos: item.pos, diff })
+          })
           setStyles(node.point.cNode.left)
         }
         if (node.point.cNode.right) {
-          applyDiff({ pos: node.point.cNode.right.pos, diff })
+          ;[node.point.cNode.right, node.point.cNode.right.data].forEach(item => {
+            applyDiff({ pos: item.pos, diff })
+          })
           setStyles(node.point.cNode.right)
         }
       }
