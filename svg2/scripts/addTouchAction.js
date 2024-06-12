@@ -92,14 +92,18 @@ const addTouchAction = ({ node, data }) =>{
 
       if (node.point.letter === 'C') {
         if (node.point.cNode.left) {
-          console.log(node.point.cNode.left)
-          ;[node.point.cNode.left, node.point.cNode.left.data].forEach(item => {
+          console.log('test', node.point.cNode.left, node.point.cNode.left.data)
+          ;[node.point.cNode.left
+            // , node.point.cNode.left.data
+          ].forEach(item => {
             applyDiff({ pos: item.pos, diff })
           })
           setStyles(node.point.cNode.left)
         }
         if (node.point.cNode.right) {
-          ;[node.point.cNode.right, node.point.cNode.right.data].forEach(item => {
+          ;[node.point.cNode.right
+            // , node.point.cNode.right.data
+          ].forEach(item => {
             applyDiff({ pos: item.pos, diff })
           })
           setStyles(node.point.cNode.right)
