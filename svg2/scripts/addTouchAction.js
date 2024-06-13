@@ -66,7 +66,9 @@ const addTouchAction = ({ node, data }) =>{
       if (node.pair) {
         //* move cNode pair based on cNode position
         const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
-        ;[node.pair.data, node.pair].forEach(item => {
+        ;[
+          // node.pair.data,
+          node.pair].forEach(item => {
           item.pos = getOffsetPos({
             angle: radToDeg(angleTo({
               a: axis,
@@ -86,14 +88,12 @@ const addTouchAction = ({ node, data }) =>{
       }
       ;[node.point, node].forEach(item => item.pos = pos)
 
-
-
       // TODO this bit isn't quite right - the movement of cNode and corresponding coord is not in sync
 
       if (node.point.letter === 'C') {
         if (node.point.cNode.left) {
-          console.log('test', node.point.cNode.left, node.point.cNode.left.data)
-          ;[node.point.cNode.left
+          ;[
+            node.point.cNode.left
             // , node.point.cNode.left.data
           ].forEach(item => {
             applyDiff({ pos: item.pos, diff })

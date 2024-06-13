@@ -4,7 +4,6 @@ import { addTouchAction } from './addTouchAction.js'
 
 const xY = pos => `${pos.x} ${pos.y}`
 
-// TODO perhaps rename prev and next, because it's misleading
 const updatePath = path => {
   const newPath = path.points.map(n => {
     const { letter, pos, cNode: { xy1, xy2 } } = n
@@ -35,12 +34,12 @@ const addPath = pos => {
   })
 }
 
-const addNode = ({ pos, path, point }) => {
+const addNode = ({ pos, point }) => {
   const newNode = {
     el: Object.assign(document.createElement('div'), 
     { className: 'node' }),
     pos,
-    path,
+    path: point.path,
     point
   }
   setStyles(newNode)
@@ -73,19 +72,20 @@ const cNodePos = ({ currentPos, prevPos, nextPos, reverse }) => {
   }
 }
 
-const addCnodeEl = ({ point, data, isRightNode }) => {
+const addCnodeEl = ({ point, isRightNode }) => {
+  const key = isRightNode ? 'xy1' : 'xy2'
   const newNode = {
     el: Object.assign(document.createElement('div'), 
     { className: `node c ${isRightNode ? 'right' : 'left'}` }),
-    pos: data.pos,
+    pos: point.cNode[key].pos,
     path: point.path,
     point,
     isRightNode,
-    data
+    key: isRightNode ? 'xy1' : 'xy2'
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
-  addTouchAction({ node: newNode, data })
+  addTouchAction({ node: newNode, data: point.cNode[key] })
 
   if (isRightNode) {
     point.prevPoint.cNode.right = newNode 
@@ -120,7 +120,7 @@ const addLeftCnode = point => {
 
   updatePath(point.path)
   addCnodeEl({
-    data: point.cNode.xy2,
+    // data: point.cNode.xy2,
     point,
   })
 }
@@ -140,7 +140,7 @@ const addRightCnode = point => {
 
   updatePath(point.path)
   addCnodeEl({ 
-    data: point.cNode.xy1,
+    // data: point.cNode.xy1,
     point,
     isRightNode: true,
   })

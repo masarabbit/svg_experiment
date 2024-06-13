@@ -23,14 +23,11 @@ function init() {
         right: null
       },
       index: null,
+      path,
     }
     path.points.push(newPoint)
-    path.svg.innerHTML = `<path d="${path.points.map(p => {
-      const { letter, pos: { x, y } } = p
-      return `${letter} ${x} ${y}`
-    })}"></path>`
     updatePath(path)
-    addNode({ pos, path, point: newPoint })
+    addNode({ pos, point: newPoint })
     path.points.forEach((p, i) => {
       p.index = i
       p.path = path
