@@ -1,10 +1,12 @@
 
 const px = num => `${num}px`
 
-const setStyles = ({ el, pos, w, h, deg }) =>{
+const setStyles = ({ el, pos, w, h, deg, data }) =>{
   if (w) el.style.width = px(w)
   if (h) el.style.height = px(h)
-  el.style.transform = `translate(${pos.x ? px(pos.x) : 0}, ${pos.y ? px(pos.y) : 0}) rotate(${deg || 0}deg)`
+  const x = data?.pos.x || pos?.x || 0
+  const y = data?.pos.y || pos?.y || 0 
+  el.style.transform = `translate(${px(x)}, ${px(y)}) rotate(${deg || 0}deg)`
 }
 
 const client = (e, type) => e.type[0] === 'm' ? e[`client${type}`] : e.touches[0][`client${type}`]

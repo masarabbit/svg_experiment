@@ -3,6 +3,10 @@ import { settings, elements } from './scripts/settings.js'
 import { updatePath, addPath, addNode } from './scripts/pathAction.js'
 import { newElement } from './scripts/utils.js'
 
+
+
+// TODO we need a reliable way to sync node and corresponding data
+
 function init() {
 
   const svgPath = (style, id) =>{
@@ -27,7 +31,7 @@ function init() {
     }
     path.points.push(newPoint)
     updatePath(path)
-    addNode({ pos, point: newPoint })
+    addNode({ point: newPoint })
     path.points.forEach((p, i) => {
       p.index = i
       p.path = path
@@ -65,8 +69,8 @@ function init() {
       addSvg(settings.paths[0])
       settings.currentPath = settings.paths[0]
       addNode({ 
-        path: settings.currentPath,
-        pos,
+        // path: settings.currentPath,
+        // pos,
         point: settings.currentPath.points[0]
       })
       settings.idCount++

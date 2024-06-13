@@ -86,7 +86,12 @@ const addTouchAction = ({ node, data }) =>{
         x: pos.x - node.point.pos.x,
         y: pos.y - node.point.pos.y
       }
-      ;[node.point, node].forEach(item => item.pos = pos)
+  
+      ;[
+        node.point, 
+        node
+      ].forEach(item => item.pos = pos)
+      console.log(node.point.pos, node.pos)
 
       // TODO this bit isn't quite right - the movement of cNode and corresponding coord is not in sync
 

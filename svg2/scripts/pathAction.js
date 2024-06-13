@@ -32,15 +32,19 @@ const addPath = pos => {
     svgStyle: settings.svgStyle,
     id: settings.idCount
   })
+  settings.paths[0].points[0].path = settings.paths[0]
 }
 
-const addNode = ({ pos, point }) => {
+const addNode = ({ 
+  // pos, 
+  point }) => {
   const newNode = {
     el: Object.assign(document.createElement('div'), 
     { className: 'node' }),
-    pos,
+    // pos: point.pos,
     path: point.path,
-    point
+    point,
+    data: point
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
