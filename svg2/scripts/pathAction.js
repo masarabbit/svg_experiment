@@ -108,7 +108,10 @@ const addCnodeEl = ({ point, isRightNode }) => {
 const addLeftCnode = point => {
   point.letter = 'C'
   point.isCurve = true
-  point.cNode.xy1.pos = point.prevPoint?.pos || point.pos
+  point.cNode.xy1.pos = point.cNode.xy1?.isSet 
+    ? point.cNode.xy1.pos 
+    : point.pos
+  point.cNode.xy1.isSet = true
   // point.cNode.xy1.point = point
 
   point.cNode.xy2.pos = cNodePos({
