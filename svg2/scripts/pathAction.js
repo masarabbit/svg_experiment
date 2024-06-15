@@ -35,16 +35,13 @@ const addPath = pos => {
   settings.paths[0].points[0].path = settings.paths[0]
 }
 
-const addNode = ({ 
-  // pos, 
-  point }) => {
+const addNode = ({ point }) => {
   const newNode = {
     el: Object.assign(document.createElement('div'), 
     { className: 'node' }),
-    // pos: point.pos,
     path: point.path,
     point,
-    data: point
+    // data: point
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
@@ -81,28 +78,28 @@ const addCnodeEl = ({ point, isRightNode }) => {
   const newNode = {
     el: Object.assign(document.createElement('div'), 
     { className: `node c ${isRightNode ? 'right' : 'left'}` }),
-    pos: point.cNode[key].pos,
+    // pos: point.cNode[key].pos,
     path: point.path,
-    point,
+    point: point.cNode[key],
     isRightNode,
-    key: isRightNode ? 'xy1' : 'xy2'
+    // key: isRightNode ? 'xy1' : 'xy2'
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
-  addTouchAction({ node: newNode, data: point.cNode[key] })
+  addTouchAction({ node: newNode, data: 'x' })
 
   if (isRightNode) {
     point.prevPoint.cNode.right = newNode 
     point.prevPoint.cNode.rightLine = {
       start: point.prevPoint,
-      end: newNode,
+      end: newNode.point,
       color: 'red'
     }
   } else {
     point.cNode.left = newNode
     point.cNode.leftLine = {
       start: point,
-      end: newNode,
+      end: newNode.point,
       color: 'blue'
     }
   }
@@ -112,7 +109,7 @@ const addLeftCnode = point => {
   point.letter = 'C'
   point.isCurve = true
   point.cNode.xy1.pos = point.prevPoint?.pos || point.pos
-  point.cNode.xy1.point = point
+  // point.cNode.xy1.point = point
 
   point.cNode.xy2.pos = cNodePos({
     currentPos: point.pos,
@@ -120,13 +117,10 @@ const addLeftCnode = point => {
     nextPos: point.nextPoint?.pos || point.pos,
     reverse: true
   })
-  point.cNode.xy2.point = point.prevPoint || point
+  // point.cNode.xy2.point = point.prevPoint || point
 
   updatePath(point.path)
-  addCnodeEl({
-    // data: point.cNode.xy2,
-    point,
-  })
+  addCnodeEl({ point })
 }
 
 const addRightCnode = point => {
@@ -137,10 +131,11 @@ const addRightCnode = point => {
       prevPos: point.prevPoint?.prevPoint?.pos || point.nextPoint.pos,
       nextPos: point.pos || point.nextPoint.pos,
     })
-
-  point.cNode.xy1.point = point
+  // point.cNode.xy1.point = point
+  
   point.cNode.xy2.pos = point.pos
-  point.cNode.xy2.point = point.prevPoint || point
+  // console.log('test b', point.prevPoint.cNode)
+  // point.cNode.xy2.point = point.prevPoint || point
 
   updatePath(point.path)
   addCnodeEl({ 

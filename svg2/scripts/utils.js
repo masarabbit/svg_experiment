@@ -1,11 +1,11 @@
 
 const px = num => `${num}px`
 
-const setStyles = ({ el, pos, w, h, deg, data }) =>{
+const setStyles = ({ el, pos, w, h, deg, point }) =>{
   if (w) el.style.width = px(w)
   if (h) el.style.height = px(h)
-  const x = data?.pos.x || pos?.x || 0
-  const y = data?.pos.y || pos?.y || 0 
+  const x = point?.pos.x || pos?.x || 0
+  const y = point?.pos.y || pos?.y || 0 
   el.style.transform = `translate(${px(x)}, ${px(y)}) rotate(${deg || 0}deg)`
 }
 

@@ -43,12 +43,15 @@ const addTouchAction = ({ node, data }) =>{
   const onGrab = () =>{
     mouse.up(document, 'add', onLetGo)
     mouse.move(document, 'add', onDrag)
-    if (!data && settings.drawMode === 'curve' && !node.point.cNode.left && !node.point.cNode.right) {
+    console.log('test', node)
+    if (!data && settings.drawMode === 'curve' 
+    && !node.point.cNode.left && !node.point.cNode.right
+  ) {
       //* add cNodes
       if (node.point.letter !== 'M') addLeftCnode(node.point)
       if (node.point.nextPoint) addRightCnode(node.point.nextPoint)
-      if (node.point.cNode.left) node.point.cNode.left.pair = node.point.cNode.right
-      if (node.point.cNode.right) node.point.cNode.right.pair = node.point.cNode.left
+      // if (node.point.cNode.left) node.point.cNode.left.pair = node.point.cNode.right
+      // if (node.point.cNode.right) node.point.cNode.right.pair = node.point.cNode.left
 
       updateLines(node.path)
     }
@@ -61,60 +64,56 @@ const addTouchAction = ({ node, data }) =>{
       x: roundedClient(e, 'X') - left,
       y: roundedClient(e, 'Y') - top
     }
-    if (data) {
-      ;[data, node].forEach(item => item.pos = pos)
-      if (node.pair) {
-        //* move cNode pair based on cNode position
-        const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
-        ;[
-          // node.pair.data,
-          node.pair].forEach(item => {
-          item.pos = getOffsetPos({
-            angle: radToDeg(angleTo({
-              a: axis,
-              b: node.pos,
-            })) + 180,
-            pos: axis,
-            distance: distanceBetween(axis, node.pair.pos),
-          })
-        })
-        setStyles(node.pair)
-      }
-    } else {
-      //* move cNode pairs when main node is moved
-      const diff = {
-        x: pos.x - node.point.pos.x,
-        y: pos.y - node.point.pos.y
-      }
+    // if (data) {
+    //   ;[data, node].forEach(item => item.pos = pos)
+    //   if (node.pair) {
+    //     //* move cNode pair based on cNode position
+    //     const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.pos
+    //     ;[
+    //       // node.pair.data,
+    //       node.pair].forEach(item => {
+    //       item.pos = getOffsetPos({
+    //         angle: radToDeg(angleTo({
+    //           a: axis,
+    //           b: node.pos,
+    //         })) + 180,
+    //         pos: axis,
+    //         distance: distanceBetween(axis, node.pair.pos),
+    //       })
+    //     })
+    //     setStyles(node.pair)
+    //   }
+    // } else {
+    //   //* move cNode pairs when main node is moved
+      // const diff = {
+      //   x: pos.x - node.point.pos.x,
+      //   y: pos.y - node.point.pos.y
+      // }
   
-      ;[
-        node.point, 
-        node
-      ].forEach(item => item.pos = pos)
-      console.log(node.point.pos, node.pos)
+      node.point.pos = pos
 
-      // TODO this bit isn't quite right - the movement of cNode and corresponding coord is not in sync
+    //   // TODO this bit isn't quite right - the movement of cNode and corresponding coord is not in sync
 
-      if (node.point.letter === 'C') {
-        if (node.point.cNode.left) {
-          ;[
-            node.point.cNode.left
-            // , node.point.cNode.left.data
-          ].forEach(item => {
-            applyDiff({ pos: item.pos, diff })
-          })
-          setStyles(node.point.cNode.left)
-        }
-        if (node.point.cNode.right) {
-          ;[node.point.cNode.right
-            // , node.point.cNode.right.data
-          ].forEach(item => {
-            applyDiff({ pos: item.pos, diff })
-          })
-          setStyles(node.point.cNode.right)
-        }
-      }
-    }
+    //   if (node.point.letter === 'C') {
+    //     if (node.point.cNode.left) {
+    //       ;[
+    //         node.point.cNode.left
+    //         // , node.point.cNode.left.data
+    //       ].forEach(item => {
+    //         applyDiff({ pos: item.pos, diff })
+    //       })
+    //       setStyles(node.point.cNode.left)
+    //     }
+    //     if (node.point.cNode.right) {
+    //       ;[node.point.cNode.right
+    //         // , node.point.cNode.right.data
+    //       ].forEach(item => {
+    //         applyDiff({ pos: item.pos, diff })
+    //       })
+    //       setStyles(node.point.cNode.right)
+    //     }
+    //   }
+    // }
     setStyles(node)
     updateLines(node.path)
     updatePath(node.path)
@@ -122,7 +121,6 @@ const addTouchAction = ({ node, data }) =>{
   const onLetGo = () => {
     mouse.up(document, 'remove', onLetGo)
     mouse.move(document,'remove', onDrag)
-
   }
   mouse.down(node.el,'add', onGrab)
   mouse.enter(node.el,'add', ()=> {
