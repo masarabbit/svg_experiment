@@ -33,8 +33,10 @@ function init() {
       pos,
       isCurve: false,
       cNode: {
-        xy1: { pos: { x: 0, y: 0 }},
-        xy2: { pos: { x: 0, y: 0 }},
+        // xy1: { pos: { x: 0, y: 0 }},
+        // xy2: { pos: { x: 0, y: 0 }},
+        xy1: { pos: null },
+        xy2: { pos: null },
         left: null,
         right: null
       },
@@ -111,6 +113,10 @@ elements.svgInput.addEventListener('change', e => {
   // TODO need some logic to move the node too
 })
 
+window.addEventListener('mousemove', e => {
+  const { left, top } = elements.display.getBoundingClientRect()
+  document.querySelector('.indicator').innerHTML = `${e.pageX - left} - ${e.pageY - top}`
+})
 
 
 }

@@ -121,8 +121,9 @@ svg:hover {
 
 .indicator {
   position: fixed;
-  top: 5px;
-  left: 5px;
+  top: 40px;
+  left: 10px;
+  color: red;
 }
 
 .cNode {

@@ -22,8 +22,10 @@ const addPath = pos => {
       pos,
       isCurve: false,
       cNode: {
-        xy1: { pos: { x: 0, y: 0 } },
-        xy2: { pos: { x: 0, y: 0 } },
+        // xy1: { pos: { x: 0, y: 0 } },
+        // xy2: { pos: { x: 0, y: 0 } },
+        xy1: null,
+        xy2: null,
         left: null,
         right: null
       },
@@ -82,11 +84,12 @@ const addCnodeEl = ({ point, isRightNode }) => {
     path: point.path,
     point: point.cNode[key],
     isRightNode,
+    axis: isRightNode ? point.prevPoint.pos : point.pos
     // key: isRightNode ? 'xy1' : 'xy2'
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
-  addTouchAction({ node: newNode, data: 'x' })
+  addTouchAction({ node: newNode, point: newNode.point })
 
   if (isRightNode) {
     point.prevPoint.cNode.right = newNode 
@@ -108,11 +111,7 @@ const addCnodeEl = ({ point, isRightNode }) => {
 const addLeftCnode = point => {
   point.letter = 'C'
   point.isCurve = true
-  point.cNode.xy1.pos = point.cNode.xy1?.isSet 
-    ? point.cNode.xy1.pos 
-    : point.pos
-  point.cNode.xy1.isSet = true
-  // point.cNode.xy1.point = point
+  point.cNode.xy1.pos = point.cNode.xy1.pos || point.pos
 
   point.cNode.xy2.pos = cNodePos({
     currentPos: point.pos,
@@ -120,7 +119,6 @@ const addLeftCnode = point => {
     nextPos: point.nextPoint?.pos || point.pos,
     reverse: true
   })
-  // point.cNode.xy2.point = point.prevPoint || point
 
   updatePath(point.path)
   addCnodeEl({ point })
@@ -134,11 +132,8 @@ const addRightCnode = point => {
       prevPos: point.prevPoint?.prevPoint?.pos || point.nextPoint.pos,
       nextPos: point.pos || point.nextPoint.pos,
     })
-  // point.cNode.xy1.point = point
   
-  point.cNode.xy2.pos = point.pos
-  // console.log('test b', point.prevPoint.cNode)
-  // point.cNode.xy2.point = point.prevPoint || point
+  point.cNode.xy2.pos = point.cNode.xy2.pos || point.pos
 
   updatePath(point.path)
   addCnodeEl({ 
