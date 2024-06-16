@@ -122,10 +122,11 @@ const addLeftCnode = point => {
 const addRightCnode = point => {
   point.letter = 'C'
   point.isCurve = true
+  
   point.cNode.xy1.pos = cNodePos({
-      currentPos: point.prevPoint.pos || point.nextPoint.pos,
-      prevPos: point.prevPoint?.prevPoint?.pos || point.nextPoint.pos,
-      nextPos: point.pos || point.nextPoint.pos,
+      currentPos: point.prevPoint.pos,
+      prevPos: point.prevPoint?.prevPoint?.pos || point.prevPoint.pos,
+      nextPos: point.pos || point.prevPoint.pos,
     })
   
   point.cNode.xy2.pos = point.cNode.xy2.pos || point.pos
