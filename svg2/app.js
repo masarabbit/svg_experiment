@@ -33,8 +33,6 @@ function init() {
       pos,
       isCurve: false,
       cNode: {
-        // xy1: { pos: { x: 0, y: 0 }},
-        // xy2: { pos: { x: 0, y: 0 }},
         xy1: { pos: null },
         xy2: { pos: null },
         left: null,

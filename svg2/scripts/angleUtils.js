@@ -4,8 +4,8 @@ const angleTo = ({ a, b }) => Math.atan2(b.y - a.y, b.x - a.x)
 
 const getOffsetPos = ({ pos, distance, angle }) => {
   return {
-    x: pos.x + (distance * Math.cos(degToRad(angle))),
-    y: pos.y + (distance * Math.sin(degToRad(angle)))
+    x: Math.round(pos.x + (distance * Math.cos(degToRad(angle)))),
+    y: Math.round(pos.y + (distance * Math.sin(degToRad(angle))))
   }
 }
 

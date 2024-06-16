@@ -48,17 +48,10 @@ const addTouchAction = ({ node, point }) =>{
     && !node.point.cNode.left && !node.point.cNode.right
   ) {
       //* add cNodes
-      if (node.point.letter !== 'M') {
-        console.log('left', node.point)
-        addLeftCnode(node.point)
-      }
-      if (node.point.nextPoint) {
-        console.log('right', node.point.nextPoint)
-        addRightCnode(node.point.nextPoint)
-      }
+      if (node.point.letter !== 'M') addLeftCnode(node.point)
+      if (node.point.nextPoint) addRightCnode(node.point.nextPoint)
       if (node.point.cNode.left) node.point.cNode.left.pair = node.point.cNode.right
       if (node.point.cNode.right) node.point.cNode.right.pair = node.point.cNode.left
-      console.log('pair', node.point.cNode.left.pair, node.point.cNode.right.pair)
 
       updateLines(node.path)
     }
@@ -72,60 +65,38 @@ const addTouchAction = ({ node, point }) =>{
       y: roundedClient(e, 'Y') - top
     }
     if (point) {
-      ;[point].forEach(item => item = pos)
+      node.point.pos = pos
       if (node.pair) {
         //* move cNode pair based on cNode position
-        //TODO need to be fixed
-
-        // const axis = node.isRightNode ? node.point.prevPoint.pos : node.point.point.pos
-        const axis = node.axis
-        console.log(axis, node.point, node.pair)
-        ;[
-          node.pair.point,
-          // node.pair
-        ].forEach(item => {
-          item.pos = getOffsetPos({
-            angle: radToDeg(angleTo({
-              a: axis,
-              b: node.point,
-            })) + 180,
-            pos: axis,
-            distance: distanceBetween(axis, node.point),
-          })
-          console.log('test x', item.pos) // TODO this NAN right now, check argument
+        node.pair.point.pos = getOffsetPos({
+          angle: radToDeg(angleTo({
+            a: node.axis.pos,
+            b: node.point.pos,
+          })) + 180,
+          pos: node.axis.pos,
+          distance: distanceBetween(node.axis.pos, node.pair.point.pos),
         })
+        console.log('axis', node.axis.pos)
         setStyles(node.pair)
       }
     } else {
       //* move cNode pairs when main node is moved
-      // const diff = {
-      //   x: pos.x - node.point.pos.x,
-      //   y: pos.y - node.point.pos.y
-      // }
-  
+      const diff = {
+        x: pos.x - node.point.pos.x,
+        y: pos.y - node.point.pos.y
+      }
       node.point.pos = pos
 
-    //   // TODO this bit isn't quite right - the movement of cNode and corresponding coord is not in sync
-
-    //   if (node.point.letter === 'C') {
-    //     if (node.point.cNode.left) {
-    //       ;[
-    //         node.point.cNode.left
-    //         // , node.point.cNode.left.data
-    //       ].forEach(item => {
-    //         applyDiff({ pos: item.pos, diff })
-    //       })
-    //       setStyles(node.point.cNode.left)
-    //     }
-    //     if (node.point.cNode.right) {
-    //       ;[node.point.cNode.right
-    //         // , node.point.cNode.right.data
-    //       ].forEach(item => {
-    //         applyDiff({ pos: item.pos, diff })
-    //       })
-    //       setStyles(node.point.cNode.right)
-    //     }
-    //   }
+      if (node.point.letter === 'C') {
+        if (node.point.cNode.left) {
+          applyDiff({ pos: node.point.cNode.left.point.pos, diff })
+          setStyles(node.point.cNode.left)
+        }
+        if (node.point.cNode.right) {
+          applyDiff({ pos: node.point.cNode.right.point.pos, diff })
+          setStyles(node.point.cNode.right)
+        }
+      }
     }
     setStyles(node)
     updateLines(node.path)

@@ -22,10 +22,8 @@ const addPath = pos => {
       pos,
       isCurve: false,
       cNode: {
-        // xy1: { pos: { x: 0, y: 0 } },
-        // xy2: { pos: { x: 0, y: 0 } },
-        xy1: null,
-        xy2: null,
+        xy1: { pos: null },
+        xy2: { pos: null },
         left: null,
         right: null
       },
@@ -43,7 +41,6 @@ const addNode = ({ point }) => {
     { className: 'node' }),
     path: point.path,
     point,
-    // data: point
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
@@ -80,12 +77,10 @@ const addCnodeEl = ({ point, isRightNode }) => {
   const newNode = {
     el: Object.assign(document.createElement('div'), 
     { className: `node c ${isRightNode ? 'right' : 'left'}` }),
-    // pos: point.cNode[key].pos,
     path: point.path,
     point: point.cNode[key],
     isRightNode,
-    axis: isRightNode ? point.prevPoint.pos : point.pos
-    // key: isRightNode ? 'xy1' : 'xy2'
+    axis: isRightNode ? point.prevPoint: point
   }
   setStyles(newNode)
   elements.display.append(newNode.el)
@@ -111,7 +106,7 @@ const addCnodeEl = ({ point, isRightNode }) => {
 const addLeftCnode = point => {
   point.letter = 'C'
   point.isCurve = true
-  point.cNode.xy1.pos = point.cNode.xy1.pos || point.pos
+  point.cNode.xy1.pos = point.cNode.xy1.pos || point.prevPoint.pos
 
   point.cNode.xy2.pos = cNodePos({
     currentPos: point.pos,
@@ -137,7 +132,6 @@ const addRightCnode = point => {
 
   updatePath(point.path)
   addCnodeEl({ 
-    // data: point.cNode.xy1,
     point,
     isRightNode: true,
   })
