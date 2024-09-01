@@ -14,18 +14,18 @@ function init() {
     return `<svg id="svg-${id}" width="100%" height="100%" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"></svg>`
   }
 
-  const getCircularReplacer = () => {
-    const seen = new WeakSet();
-    return (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) {
-          return;
-        }
-        seen.add(value);
-      }
-      return value;
-    };
-  };
+  // const getCircularReplacer = () => {
+  //   const seen = new WeakSet();
+  //   return (key, value) => {
+  //     if (typeof value === "object" && value !== null) {
+  //       if (seen.has(value)) {
+  //         return;
+  //       }
+  //       seen.add(value);
+  //     }
+  //     return value;
+  //   };
+  // };
 
   const addPoint = ({ pos, path }) => {
     const newPoint = {
@@ -101,8 +101,20 @@ elements.buttons.forEach(btn =>{
     console.log(settings.drawMode)
   })
 
-  if (btn.dataset.c === 'n') btn.addEventListener('click', ()=> {
-    console.log(JSON.stringify(settings.paths[settings.paths.length - 1], getCircularReplacer()))
+  // if (btn.dataset.c === 'n') btn.addEventListener('click', ()=> {
+  //   console.log(JSON.stringify(settings.paths[settings.paths.length - 1], getCircularReplacer()))
+  // })
+
+
+  // ? add test code for directly drawing path
+  if (btn.dataset.c === 't') btn.addEventListener('click', () => {
+    console.log('test')
+    addPath({ x:0, y:0 })
+    addSvg(settings.paths[0])
+    settings.currentPath = settings.paths[0]
+    //                           / a                         // b               // c
+    elements.svgInput.value = 'M 200 150 C 200 150, 200 100, 250 100 C 300 100, 300 150, 300 150'
+    settings.currentPath.svg.innerHTML = `<path d="${elements.svgInput.value}"></path>`
   })
 })
 
