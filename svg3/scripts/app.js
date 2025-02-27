@@ -16,8 +16,7 @@ function init() {
       name: 'svg input',
       container: elements.body,
       isOpen: true,
-      x: 10,
-      y: 600,
+      x: 10, y: 600,
       content: nav => {
         new TextArea({
           container: nav.contentWrapper,

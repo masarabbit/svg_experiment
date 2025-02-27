@@ -45,6 +45,7 @@ const settings = {
     strokeWidth: 1,
     smoothing: 0.2,
   },
+  snap: 1,
   addNewPath: true,
   currentPath: null,
   idCount: 0,

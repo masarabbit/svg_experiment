@@ -8,13 +8,6 @@ class PageObject {
       ...props,
     })
   }
-  // syncSize() {
-  //   const { width, height } = this.el
-  //     .querySelector('div')
-  //     .getBoundingClientRect()
-  //   this.w = width
-  //   this.h = height
-  // }
   get pos() {
     return {
       x: this.x,
@@ -27,15 +20,6 @@ class PageObject {
       h: this.h,
     }
   }
-  get column() {
-    return this.w / settings.d
-  }
-  get row() {
-    return this.h / settings.d
-  }
-  get cellSize() {
-    return this.d
-  }
   setStyles() {
     Object.assign(this.el.style, {
       left: px(this.x || 0),
@@ -45,7 +29,6 @@ class PageObject {
     })
   }
   addToPage() {
-    // this.setStyles()
     this.container.appendChild(this.el)
   }
   remove() {
@@ -53,8 +36,8 @@ class PageObject {
   }
   touchPos(e) {
     return {
-      x: nearestN(roundedClient(e, 'X'), settings.d),
-      y: nearestN(roundedClient(e, 'Y'), settings.d)
+      x: nearestN(roundedClient(e, 'X'), settings.snap),
+      y: nearestN(roundedClient(e, 'Y'), settings.snap)
     }
   }
   addDragEvent() {
@@ -85,16 +68,16 @@ class PageObject {
     mouse.up(document, 'remove', this.onLetGo)
     mouse.move(document, 'remove', this.onDrag)
   }
-  resizeBox = e =>{
-    const { defPos } = this
-    const { x, y } = elements.artboard.drawPos(e)
-    this.x = x > defPos.x ? defPos.x : x
-    this.y = y > defPos.y ? defPos.y : y
-    this.resizeCanvas({ 
-      w: Math.abs(defPos.x - x),
-      h: Math.abs(defPos.y - y),
-    })
-  }
+  // resizeBox = e =>{
+  //   const { defPos } = this
+  //   const { x, y } = elements.artboard.drawPos(e)
+  //   this.x = x > defPos.x ? defPos.x : x
+  //   this.y = y > defPos.y ? defPos.y : y
+  //   this.resizeCanvas({ 
+  //     w: Math.abs(defPos.x - x),
+  //     h: Math.abs(defPos.y - y),
+  //   })
+  // }
 }
 
 export default PageObject
