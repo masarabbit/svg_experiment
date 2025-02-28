@@ -48,12 +48,17 @@ const settings = {
   snap: 1,
   addNewPath: true,
   currentPath: null,
+  paths: [],
   idCount: 0,
   prevDrawMode: 'plot',
   drawMode: 'plot',
   recordState() {
     console.log('record')
   },
+  inputs: {}
+  // get currentPath() {
+  //   return this.paths[this.currentIndex]
+  // }
 }
 
 export {

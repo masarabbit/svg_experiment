@@ -11,8 +11,8 @@ class Artboard extends PageObject {
   pos(e) {
     const { left, top } = this.el.getBoundingClientRect()
     return {
-      x: e.pageX - left,
-      y: e.pageY - top
+      x: e.pageX - left - window.scrollX,
+      y: e.pageY - top - window.scrollY
     }  
   }
 }

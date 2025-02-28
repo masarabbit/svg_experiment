@@ -1,15 +1,26 @@
-import { elements } from './elements.js'
+import { elements, settings } from './elements.js'
 import { NavWindow } from './classes/nav.js'
 import { TextArea } from './classes/input.js'
 import { mouse } from './utils.js'
 import { Artboard } from './classes/Artboard.js'
+import { Path } from './classes/path.js'
+
+//TODO theres a bug when dragging the node (it still adds the new path)
 
 function init() {
   elements.windows = {
     artboard: new Artboard({
       el: elements.display,
       action: (e, el) => {
-        console.log(el.pos(e))
+        if (settings.drawMode !== 'plot') return
+        if (settings.addNewPath) {
+          settings.currentPath = new Path({}, el.pos(e))
+          settings.addNewPath = false
+        } else {
+          settings.currentPath.addPoint('L', el.pos(e))
+          settings.currentPath.updatePath()
+          // console.log(el.pos(e))
+        }
       }
     }),
     svgInput: new NavWindow({
@@ -57,10 +68,19 @@ function init() {
           action: ()=> {
             console.log('T')
           }
+        },
+        {
+          btnText: 'show',
+          action: ()=> {
+            console.log('current path', settings.currentPath)
+          }
         }
       ])
     })
   }
+
+  console.log(settings.inputs.svgInput.value)
+
 
   mouse.move(document, 'add', e => {
     const { x, y } = elements.windows.artboard.pos(e)

@@ -24,15 +24,15 @@ class TextArea {
     //     action: () => b.action(this)
     //   })
     // })
-    // settings.inputs[this.inputName] = this
+    settings.inputs[this.inputName] = this
   }
-  // get value() {
-  //   return this.input.value.split(',')
-  // }
-  // set value(val) {
-  //   this.input.value = val
-  //   settings[this.inputName] = Array.isArray(val) ? val : val.split(',')
-  // }
+  get value() {
+    return this.input.value
+  }
+  set value(val) {
+    this.input.value = val
+    // settings[this.inputName] = Array.isArray(val) ? val : val.split(',')
+  }
   copyText() {
     this.input.select()
     this.input.setSelectionRange(0, 999999) // For mobile devices 

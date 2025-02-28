@@ -42,6 +42,7 @@ const addNode = ({ point }) => {
     path: point.path,
     point,
   }
+  console.log('test', newNode)
   setStyles(newNode)
   elements.display.append(newNode.el)
   addTouchAction({ node: newNode })

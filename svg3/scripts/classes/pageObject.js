@@ -8,12 +8,12 @@ class PageObject {
       ...props,
     })
   }
-  get pos() {
-    return {
-      x: this.x,
-      y: this.y,
-    }
-  }
+  // get pos() {
+  //   return {
+  //     x: this.x,
+  //     y: this.y,
+  //   }
+  // }
   get size() {
     return {
       w: this.w,
@@ -22,8 +22,8 @@ class PageObject {
   }
   setStyles() {
     Object.assign(this.el.style, {
-      left: px(this.x || 0),
-      top: px(this.y || 0),
+      left: px(this.pos.x || 0),
+      top: px(this.pos.y || 0),
       width: px(this.w),
       height: px(this.h || this.w),
     })
@@ -42,14 +42,25 @@ class PageObject {
   }
   addDragEvent() {
     mouse.down(this.el, 'add', this.onGrab)
+    mouse.enter(this.el,'add', ()=> {
+      if (settings.drawMode === 'curve') return
+      settings.prevDrawMode = settings.drawMode
+      settings.drawMode = 'drag'
+    })
+    mouse.leave(this.el,'add', ()=> {
+      if (settings.drawMode === 'curve') return
+      settings.drawMode = settings.prevDrawMode
+    })
   }
   drag = (e, x, y) => {
     if (e.type[0] === 'm') e.preventDefault()
     this.grabPos.a.x = this.grabPos.b.x - x
     this.grabPos.a.y = this.grabPos.b.y - y
-    this.x -= this.grabPos.a.x
-    this.y -= this.grabPos.a.y
+    this.pos.x -= this.grabPos.a.x
+    this.pos.y -= this.grabPos.a.y
     this.setStyles()
+    this.path.updatePath()
+    // console.log(this)
   }
   onGrab = e => {
     this.grabPos.b = this.touchPos(e)
@@ -58,9 +69,9 @@ class PageObject {
   }
   onDrag = e => {
     const { x, y } = this.touchPos(e)
-    this.canMove
-      ? this.drag(e, x, y)
-      : this.resizeBox(e)
+    this.canResize
+      ? this.resizeBox(e)
+      : this.drag(e, x, y)
     this.grabPos.b.x = x
     this.grabPos.b.y = y
   }

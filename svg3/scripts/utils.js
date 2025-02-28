@@ -22,6 +22,7 @@ const mouse = {
 
 const roundedClient = (e, type) => Math.round(e.type[0] === 'm' ? e[`client${type}`] : e.touches[0][`client${type}`])
 
+const xY = pos => `${pos.x} ${pos.y}`
 
 export {
   nearestN,
@@ -29,5 +30,6 @@ export {
   px,
   convertCameCase,
   mouse,
-  roundedClient
+  roundedClient,
+  xY
 }
