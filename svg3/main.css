@@ -96,9 +96,17 @@ textarea {
   border: 1px solid rgb(111, 0, 255);
 }
 
-.node.c {
+.node.left {
   border: 1px solid red;
 }
+
+.node.right {
+  border: 1px solid rgb(20, 225, 116);
+}
+
+/* .node.c {
+  border: 1px solid red;
+} */
 
 .node:hover {
   border-color:rgb(115, 255, 1);

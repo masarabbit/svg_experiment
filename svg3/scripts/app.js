@@ -6,6 +6,12 @@ import { Artboard } from './classes/Artboard.js'
 import { Path } from './classes/path.js'
 
 
+// TODO add point delete
+// TODO add fill
+ // TODO curve has bug when shape is closed with Z
+ // TODO enable removal of curve
+
+
 function init() {
   elements.windows = {
     artboard: new Artboard({
@@ -60,7 +66,8 @@ function init() {
         {
           btnText: 'C',
           action: ()=> {
-            console.log('C')
+            settings.drawMode = settings.drawMode === 'curve' ? 'plot' : 'curve'
+            console.log('c', settings.drawMode)
           }
         },
         {

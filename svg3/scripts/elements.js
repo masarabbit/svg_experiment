@@ -42,7 +42,7 @@ const settings = {
   svgStyle: {
     fill: 'transparent',
     stroke: 'grey',
-    strokeWidth: 1,
+    strokeWidth: 2,
     smoothing: 0.2,
   },
   snap: 1,

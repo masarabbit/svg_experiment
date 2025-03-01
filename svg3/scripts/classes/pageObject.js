@@ -1,4 +1,4 @@
-import { px, nearestN, roundedClient, mouse } from '../utils.js'
+import { px, nearestN, roundedClient, mouse, distanceBetween } from '../utils.js'
 import { settings } from '../elements.js'
 
 class PageObject {
@@ -52,15 +52,18 @@ class PageObject {
       settings.drawMode = settings.prevDrawMode
     })
   }
+  addXy(xY) {
+    this.pos.x -= xY.x
+    this.pos.y -= xY.y
+  }
   drag = (e, x, y) => {
     if (e.type[0] === 'm') e.preventDefault()
     this.grabPos.a.x = this.grabPos.b.x - x
     this.grabPos.a.y = this.grabPos.b.y - y
-    this.pos.x -= this.grabPos.a.x
-    this.pos.y -= this.grabPos.a.y
+    this.addXy(this.grabPos.a)
     this.setStyles()
     this.path.updatePath()
-    // console.log(this)
+    if (this.extraDragAction) this.extraDragAction()
   }
   onGrab = e => {
     this.grabPos.b = this.touchPos(e)
@@ -78,6 +81,9 @@ class PageObject {
   onLetGo = () => {
     mouse.up(document, 'remove', this.onLetGo)
     mouse.move(document, 'remove', this.onDrag)
+  }
+  distanceBetween(target) {
+    return distanceBetween(target, this.pos)
   }
   // resizeBox = e =>{
   //   const { defPos } = this
