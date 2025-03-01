@@ -27,16 +27,8 @@ class Svg extends PageObject {
       }),
       ...props,
     })
-    const { fill, stroke, strokeWidth } = settings.svgStyle
-    const attributes = {
-      width: '100%',
-      height: '100%',
-      fill,
-      stroke,
-      'stroke-width': strokeWidth
-    }
-    Object.keys(attributes).forEach(key => {
-      this.el.setAttribute(key, attributes[key])
+    ;['width', 'height'].forEach(key => {
+      this.el.setAttribute(key, '100%')
     })
     this.addToPage()
   }
@@ -57,37 +49,41 @@ class Path extends PageObject {
     })
     this.addPoint('M', pos)
   }
-  // xY(pos) {
-  //   return `${pos.x} ${pos.y}`
-  // }
   addPoint(letter, pos) {
     const newPoint = {
       letter,
       pos,
       isCurve: false,
-      cNode: {
+    }
+    this.points.push(newPoint)
+    if (letter !== 'Z') {
+      newPoint.cNode = {
         xy1: { pos: null },
         xy2: { pos: null },
         left: null,
         right: null
-      },
+      }
+      newPoint.node = new Node({
+        path: this,
+        point: newPoint,
+        container: elements.display,
+      })
     }
-    this.points.push(newPoint)
-    newPoint.node = new Node({
-      path: this,
-      point: newPoint,
-      container: elements.display,
-    })
+    this.updatePath()
   }
   updatePath() {
     const newPath = this.points.map(n => {
-      const { letter, pos, cNode: { xy1, xy2 } } = n
+      const { letter } = n
+      if (letter === 'Z') return 'Z'
+
+      const { pos, cNode: { xy1, xy2 } } = n
       return letter === 'C'
-          ? `${letter} ${xY(xy1.pos)}, ${xY(xy2.pos)}, ${xY(pos)}` // TODO this could come from getter?
+          ? `${letter} ${xY(xy1.pos)}, ${xY(xy2.pos)}, ${xY(pos)}`
           : `${letter} ${xY(pos)}`
     }).join(' ')
     settings.inputs.svgInput.value = newPath
-    this.svg.el.innerHTML = `<path d="${newPath}"></path>`
+    const { fill, stroke, strokeWidth } = settings.svgStyle
+    this.svg.el.innerHTML = `<path fill="${fill}" stroke="${stroke}" stroke-width=${strokeWidth} d="${newPath}"></path>`
   }
 }
 

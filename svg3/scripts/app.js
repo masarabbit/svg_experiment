@@ -5,7 +5,6 @@ import { mouse } from './utils.js'
 import { Artboard } from './classes/Artboard.js'
 import { Path } from './classes/path.js'
 
-//TODO theres a bug when dragging the node (it still adds the new path)
 
 function init() {
   elements.windows = {
@@ -18,7 +17,7 @@ function init() {
           settings.addNewPath = false
         } else {
           settings.currentPath.addPoint('L', el.pos(e))
-          settings.currentPath.updatePath()
+          // settings.currentPath.updatePath()
           // console.log(el.pos(e))
         }
       }
@@ -55,6 +54,7 @@ function init() {
           btnText: 'Z',
           action: ()=> {
             console.log('Z')
+            settings.currentPath.addPoint('Z')
           }
         },
         {
