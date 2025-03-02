@@ -30,6 +30,7 @@ const elements = {
 
         ;['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].forEach(prop => {
           settings.inputs[prop].value = data[key][prop]
+          if (prop.includes('Hex')) settings.inputs[prop].updateColor()
         })
       })
     }

@@ -81,7 +81,7 @@ class Input {
     this.input.addEventListener('change', e => {
       settings[this.inputName] = e.target.value
       if (['fill', 'fillHex', 'stroke', 'strokeHex'].includes(this.inputName)) this.updateColor()
-      settings.currentPath.updateSvgStyle()
+      if (settings.currentPath) settings.currentPath.updateSvgStyle()
       if (this.update) this.update() 
     })
   }

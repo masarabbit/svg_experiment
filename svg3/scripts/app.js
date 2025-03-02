@@ -8,7 +8,8 @@ import { Artboard } from './classes/Artboard.js'
 
 // TODO add point delete
 // TODO enable removal of curve
-// TODO add save
+// TODO add save / svg download
+// TODO add visualisation for selected mode
 
 
 function init() {

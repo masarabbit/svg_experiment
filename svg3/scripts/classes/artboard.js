@@ -33,11 +33,10 @@ class Artboard extends PageObject {
 
     mouse.move(document, 'add', e => {
       const { x, y } = this.pos(e)
-      elements.indicator.innerHTML = `${x} | ${y}` 
+      elements.indicator.innerHTML = `X${x} Y${y}` 
     })
 
     mouse.down(this.resizeHandle, 'add', e => {
-      console.log('down')
       this.canResize = true
       this.onGrab(e)
     })
