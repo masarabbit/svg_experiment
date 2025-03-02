@@ -115,10 +115,12 @@ class MainNode extends Node {
     super(props)
     this.setUp()
     this.el.addEventListener('click', ()=> {
-      if (settings.drawMode === 'curve' && !['M', 'Z'].includes(this.point.letter)) {
+      if (settings.drawMode === 'curve' &&  this.point.letter !== 'Z') {
         if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
           this.path.lastPoint.addLeftNode()
-        } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
+        } else if(this.point.prevPoint 
+          // && this.point.letter !== 'M' 
+          && !this.point.leftNode) this.point.addLeftNode()
         if(this.point.nextPoint.letter !== 'Z' && this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
         this.path.updatePath()
       }
@@ -168,7 +170,7 @@ class Point {
       ...props
     })
     this.path.points.push(this)
-    if (!['M', 'Z'].includes(this.letter) && !this.isLastPoint) {
+    if (this.letter !== 'Z' && !this.isLastPoint) {
       this.mainNode = new MainNode({
         path: this.path,
         point: this,
@@ -239,27 +241,19 @@ class Path extends PageObject {
       id: settings.idCount,
       ...props
     })
-    // this.addPoint('M', pos)
-    this.openPath(pos)
+    this.addPoint('M', pos)
+  }
+  get firstPoint() {
+    return this.points?.[0]
   }
   addPoint(letter, pos) {
     new Point({ letter, pos, path: this })
-    this.updatePath()
-  }
-  openPath(pos) {
-    new Point({ letter: 'M', pos, path: this })
-    this.firstPoint = new Point({ 
-      letter: 'L', 
-      pos,
-      path: this
-    })
     this.updatePath()
   }
   closePath() {
     this.lastPoint = new Point({ 
       letter: 'L', 
       pos: this.firstPoint.pos,
-      // pos: this.points[0].pos,
       path: this,
       isLastPoint: true
     })
@@ -277,7 +271,6 @@ class Path extends PageObject {
       if (letter === 'Z') return 'Z'
 
       const { pos, xy1, xy2 } = n
-      // const test = n.pointIndex === 1 && letter === 'C' ? xy2 : pos
       return letter === 'C'
           ? `${letter} ${xY(xy1)}, ${xY(xy2)}, ${xY(pos)}`
           : `${letter} ${xY(pos)}`
