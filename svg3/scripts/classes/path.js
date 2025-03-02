@@ -90,6 +90,32 @@ class CurveNode extends Node {
   }
 }
 
+class NodeLine {
+  constructor(props) {
+    Object.assign(this, {
+      el: document.createElementNS('http://www.w3.org/2000/svg','line'),
+      container: elements.lineOutput,
+      ...props
+    })
+    this.container.appendChild(this.el)
+    this.updateLine()
+  }
+  updateLine() {
+    const lineStyle = {
+      stroke: this.color,
+      'stroke-width': this.strokeWidth,
+      x1: this.point.pos.x,
+      y1: this.point.pos.y,
+      x2: this.cNode.pos.x,
+      y2: this.cNode.pos.y,
+    }
+    Object.keys(lineStyle).forEach(key => {
+      this.el.setAttribute(key, lineStyle[key])
+    })
+  }
+}
+
+
 class LeftNode extends CurveNode {
   constructor(props) {
     super({
@@ -97,6 +123,11 @@ class LeftNode extends CurveNode {
       axis: props.point,
       angleOffset: Math.PI,
       ...props,
+    })
+    this.line = new NodeLine({
+      point: this.point,
+      cNode: this,
+      color: 'orange'
     })
   }
   get pair() {
@@ -113,6 +144,11 @@ class RightNode extends CurveNode {
       angleOffset: 0,
       ...props,
     })
+    this.line = new NodeLine({
+      point: this.point,
+      cNode: this,
+      color: 'red'
+    })
   }
   get pair() {
     if (this.path.firstPoint === this.point && this.path.lastPoint) return this.path.lastPoint.leftNode
@@ -127,7 +163,6 @@ class MainNode extends Node {
     this.setUp()
     if (this.point.letter !== 'Z') this.addClickEvent()
   }
-
   get pos() {
     return this.point.pos
   }
@@ -214,15 +249,6 @@ class Point {
   get xy2() {
     return this?.leftNode?.pos || this.pos
   }
-  lineHtml(color, end) {
-    return `<line stroke="${color}" stroke-width="1" x1="${this.pos.x}" y1="${this.pos.y}" x2="${end.pos.x}" y2="${end.pos.y}"/>`
-  }
-  get leftLine() {
-    return this.leftNode ? this.lineHtml('orange', this.leftNode) : ''
-  }
-  get rightLine() {
-    return this.rightNode ? this.lineHtml('red', this.rightNode) : ''
-  }
   addLeftNode() {
     this.letter = 'C'
     this.isCurve = true
@@ -244,11 +270,11 @@ class Point {
 }
 
 
+
 class Path extends PageObject {
   constructor(props, pos) {
     super({
-      el: Object.assign(document.createElementNS('http://www.w3.org/2000/svg','path'), {
-      }),
+      el: document.createElementNS('http://www.w3.org/2000/svg','path'),
       pos: { x: 0, y: 0 },
       canMove: true,
       points: [],
@@ -279,9 +305,10 @@ class Path extends PageObject {
     this.updatePath()
   }
   updateLines() {
-    elements.lineOutput.innerHTML = `<svg class="line" width="100%" height="100%" fill="transparent">
-    ${this.points.map(p => p.leftLine + p.rightLine).join('')}
-  </svg>`
+    this.points.forEach(p => {
+      if (p.leftNode) p.leftNode.line.updateLine()
+      if (p.rightNode) p.rightNode.line.updateLine()
+    })
   }
   updatePath() {
     const newPath = this.points.map(n => {

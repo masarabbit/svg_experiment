@@ -10,10 +10,12 @@ class Artboard extends PageObject {
         className: 'display-wrapper',
         innerHTML: `
           <div class="output">
-            <svg width="100%" height="100%"></svg>
+            <svg class="output-svg" width="100%" height="100%"></svg>
           </div>
           <div class="display"></div>
-          <div class="line-output"></div>
+          <div class="line-output">
+            <svg class="line-output-svg" width="100%" height="100%" fill="transparent"></svg>
+          </div>
         `
       }),
       ...props,
@@ -23,8 +25,8 @@ class Artboard extends PageObject {
 
     // TODO this bit could be renamed so it could be looped
     elements.display = this.el.querySelector('.display')
-    elements.output = this.el.querySelector('svg')
-    elements.lineOutput = this.el.querySelector('.line-output')
+    elements.output = this.el.querySelector('.output-svg')
+    elements.lineOutput = this.el.querySelector('.line-output-svg')
     console.log(elements)
 
     elements.display.addEventListener('click', this.createOrUpdatePath)
