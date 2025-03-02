@@ -120,6 +120,7 @@ const addLeftCnode = point => {
   addCnodeEl({ point })
 }
 
+// node.point.nextPoint
 const addRightCnode = point => {
   point.letter = 'C'
   point.isCurve = true

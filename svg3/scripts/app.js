@@ -19,9 +19,11 @@ function init() {
       action: (e, el) => {
         if (settings.drawMode !== 'plot') return
         if (settings.addNewPath) {
+          console.log('new')
           settings.currentPath = new Path({}, el.pos(e))
           settings.addNewPath = false
         } else {
+          console.log('add')
           settings.currentPath.addPoint('L', el.pos(e))
           // settings.currentPath.updatePath()
           // console.log(el.pos(e))
@@ -38,7 +40,8 @@ function init() {
           container: nav.contentWrapper,
           inputName: 'svgInput',
           action: e => {
-            console.log('test', e.target.value)
+            console.log('test', settings.currentPath)
+              settings.currentPath.svg.el.innerHTML = `<path d="${e.target.value}"></path>`
           }
         })
       }
@@ -60,7 +63,8 @@ function init() {
           btnText: 'Z',
           action: ()=> {
             console.log('Z')
-            settings.currentPath.addPoint('Z')
+            // settings.currentPath.addPoint('L', settings.currentPath.points[settings.currentPath.points.length -1 ].pos)
+            settings.currentPath.closePath()
           }
         },
         {

@@ -1,6 +1,6 @@
 import PageObject from './pageObject.js';
 import { settings, elements } from '../elements.js';
-import { xY, radToDeg, degToRad, distanceBetween } from '../utils.js'
+import { xY } from '../utils.js'
 
 class Node extends PageObject {
   constructor(props) {
@@ -49,6 +49,8 @@ class CurveNode extends Node {
     return this.cNodeLine.angle + this.angleOffset
   }
   setDefaultPos() {  
+    // TODO this isn't quite right when lastPoint and firstPoint is related
+    // const point = this.path.firstPoint === this.point ? this.path.lastPoint : this.point
     const x = this.point.pos.x + Math.cos(this.lineAngle) * this.lineLength || this.point.pos.x 
     const y = this.point.pos.y + Math.sin(this.lineAngle) * this.lineLength || this.point.pos.y
   
@@ -58,7 +60,7 @@ class CurveNode extends Node {
     }
   }
   get angleToAxis() {
-    return degToRad(radToDeg(Math.atan2(this.pos.y - this.axis.pos.y, this.pos.x - this.axis.pos.x)) + 180) // prob just adding PI
+    return Math.atan2(this.pos.y - this.axis.pos.y, this.pos.x - this.axis.pos.x) + Math.PI
   } 
   getOffsetPos() {
     const distance = this.pair.distanceBetween(this.axis.pos)
@@ -85,6 +87,7 @@ class LeftNode extends CurveNode {
     })
   }
   get pair() {
+    if (this.path.lastPoint === this.point) return this.path.firstPoint.rightNode
     return this.point.rightNode
   }
 }
@@ -99,6 +102,7 @@ class RightNode extends CurveNode {
     })
   }
   get pair() {
+    if (this.path.firstPoint === this.point && this.path.lastPoint) return this.path.lastPoint.leftNode
     return this.point.leftNode
   }
 }
@@ -109,9 +113,11 @@ class MainNode extends Node {
     super(props)
     this.setUp()
     this.el.addEventListener('click', ()=> {
-      if (settings.drawMode === 'curve') {
-        if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
-        if(this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
+      if (settings.drawMode === 'curve' && !['M', 'Z'].includes(this.point.letter)) {
+        if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
+          this.path.lastPoint.addLeftNode()
+        } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
+        if(this.point.nextPoint.letter !== 'Z' && this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
         this.path.updatePath()
       }
     })
@@ -120,12 +126,19 @@ class MainNode extends Node {
     return this.point.pos
   }
   extraDragAction() {
-    ;['leftNode', 'rightNode'].forEach(node => {
-      if (this.point[node]) {
-        this.point[node].addXy(this.grabPos.a)
-        this.point[node].setStyles()
-      }
-    })
+    if (this.point === this.path.firstPoint && this.path.lastPoint?.leftNode) {
+      this.path.lastPoint.leftNode.addXy(this.grabPos.a)
+      this.path.lastPoint.leftNode.setStyles()
+      this.point.rightNode.addXy(this.grabPos.a)
+      this.point.rightNode.setStyles()
+    } else {
+      ;['leftNode', 'rightNode'].forEach(node => {
+        if (this.point[node]) {
+          this.point[node].addXy(this.grabPos.a)
+          this.point[node].setStyles()
+        }
+      })
+    }
   }
 }
 
@@ -153,11 +166,12 @@ class Point {
       ...props
     })
     this.path.points.push(this)
-    if (this.letter !== 'Z') {
+    if (!['M', 'Z'].includes(this.letter) && !this.isLastPoint) {
       this.mainNode = new MainNode({
         path: this.path,
         point: this,
         container: elements.display,
+        className: this.letter + this.pointIndex
       })
     }
   }
@@ -166,13 +180,17 @@ class Point {
   }
   get prevPoint() {
     // TODO this will be different if line is closed
+    // if (this.pointIndex === 1) return this.path.lastPoint
+    // if (this.pointIndex === 1) this.path.points?.[this.pointIndex - 3]
+    if (this === this.path.firstPoint && this.path.lastPoint) return this.path.isLastPoint
     return this.path.points?.[this.pointIndex - 1]
   }
   get nextPoint() {
+    if (this === this.path.lastPoint) return this.path.firstPoint
     return this.path.points?.[this.pointIndex + 1]
   }
   get xy1() {
-    return this.prevPoint?.rightNode?.pos || this.pos
+    return this.prevPoint?.rightNode?.pos || this.prevPoint?.pos || this.pos
   }
   get xy2() {
     return this?.leftNode?.pos || this.pos
@@ -219,10 +237,31 @@ class Path extends PageObject {
       id: settings.idCount,
       ...props
     })
-    this.addPoint('M', pos)
+    // this.addPoint('M', pos)
+    this.openPath(pos)
   }
   addPoint(letter, pos) {
     new Point({ letter, pos, path: this })
+    this.updatePath()
+  }
+  openPath(pos) {
+    new Point({ letter: 'M', pos, path: this })
+    this.firstPoint = new Point({ 
+      letter: 'L', 
+      pos,
+      path: this
+    })
+    this.updatePath()
+  }
+  closePath() {
+    this.lastPoint = new Point({ 
+      letter: 'L', 
+      pos: this.firstPoint.pos,
+      // pos: this.points[0].pos,
+      path: this,
+      isLastPoint: true
+    })
+    new Point({ letter: 'Z', path: this })
     this.updatePath()
   }
   updateLines() {
@@ -236,6 +275,7 @@ class Path extends PageObject {
       if (letter === 'Z') return 'Z'
 
       const { pos, xy1, xy2 } = n
+      // const test = n.pointIndex === 1 && letter === 'C' ? xy2 : pos
       return letter === 'C'
           ? `${letter} ${xY(xy1)}, ${xY(xy2)}, ${xY(pos)}`
           : `${letter} ${xY(pos)}`
