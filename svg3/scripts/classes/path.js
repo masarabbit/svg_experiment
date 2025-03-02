@@ -51,8 +51,6 @@ class CurveNode extends Node {
     return this.cNodeLine.angle + this.angleOffset
   }
   setDefaultPos() {  
-    // TODO this isn't quite right when lastPoint and firstPoint is related
-    // const point = this.path.firstPoint === this.point ? this.path.lastPoint : this.point
     const x = this.point.pos.x + Math.cos(this.lineAngle) * this.lineLength || this.point.pos.x 
     const y = this.point.pos.y + Math.sin(this.lineAngle) * this.lineLength || this.point.pos.y
   
@@ -72,6 +70,7 @@ class CurveNode extends Node {
     }
   }
   extraDragAction() {
+    this.path.updatePath()
     if (this.pair) {
       this.pair.pos = this.getOffsetPos()
       this.pair.setStyles()
@@ -118,9 +117,7 @@ class MainNode extends Node {
       if (settings.drawMode === 'curve' &&  this.point.letter !== 'Z') {
         if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
           this.path.lastPoint.addLeftNode()
-        } else if(this.point.prevPoint 
-          // && this.point.letter !== 'M' 
-          && !this.point.leftNode) this.point.addLeftNode()
+        } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
         if(this.point.nextPoint.letter !== 'Z' && this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
         this.path.updatePath()
       }
@@ -130,6 +127,7 @@ class MainNode extends Node {
     return this.point.pos
   }
   extraDragAction() {
+    this.path.updatePath()
     if (this.point === this.path.firstPoint && this.path.lastPoint?.leftNode) {
       this.path.lastPoint.leftNode.addXy(this.grabPos.a)
       this.path.lastPoint.leftNode.setStyles()
@@ -183,9 +181,6 @@ class Point {
     return this.path.points.indexOf(this)
   }
   get prevPoint() {
-    // TODO this will be different if line is closed
-    // if (this.pointIndex === 1) return this.path.lastPoint
-    // if (this.pointIndex === 1) this.path.points?.[this.pointIndex - 3]
     if (this === this.path.firstPoint && this.path.lastPoint) return this.path.isLastPoint
     return this.path.points?.[this.pointIndex - 1]
   }

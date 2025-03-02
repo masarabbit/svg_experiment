@@ -51,8 +51,8 @@ class NavWindow extends PageObject {
   }
   setStyles() {
     Object.assign(this.window.style, {
-      left: px(this.x || 0),
-      top: px(this.y || 0),
+      left: px(this.pos.x || 0),
+      top: px(this.pos.y || 0),
       width: px(this.w),
       height: px(this.h || this.w),
       zIndex: 1 + this.y

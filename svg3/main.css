@@ -40,29 +40,27 @@ h1 {
   text-transform: uppercase;
 }
 
+.display-wrapper > div {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
 
 .output {
-  border: 1px solid red;
-  position: relative;
-  /* margin: 50px 0 30px 0; */
-  width: 100%;
-  height: 300px;
-  max-width: 600px;
-  /* background-color: white; */
   background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACLUlEQVR4Xu3dsXICMQwEUFMwNPz/50FDRwkNUFxmSJFMwnGenJwT5lF7DOOVdrWy7lgNwzCUic/tdivr9XpqWVlq3fl8LtvtNu3vqz2X/X5fVgD5jWPtAUavA8hITkUfdO1+AAHI5wnURkztOhqSLLIAApAmmU5DkgUWQDICcr1eJ43hpONaeMHlcimbzWbhXzH/6w+HA2P46Bhrq7vodSgrI2VpnWidMIYjmYmyUJbWybNaTIbIEBkiQ76dQLRviN7vTlmc+nyHHbUDp05DaAgNeTUN0TrROtE60Tppo11Nyl6UhbJQFsp6Icri1KN89vx9OHVOvQ11mFxMFlkAAcj9BPiQkUCQITJEhjwrKmWIDJEhb5MhnPp8hx21A6eejHoNygFE68SQgyGH/38nCh+SjHsBAhDG8G2MoamTZFMnp9Pp5Z9Tj3LKS+9zPB49p/4IhOiLp9r9OPVkxQlAAKJ1onWidaJ18jMLiHoybQAIQNqIdW1kddVcdKe+tD//+n536smojTEESBut6UpDtN+Ttd8BApDw5ypQVjIxBAhADDm8zZADp86pE/WRGODUk2khQACideJO3Z26O3V36v4L9zET1l65Rq/TOklWnXQFCKfOqXPqnHob/xOthZx6Mi0ECEDaUEdXVZYhB0MOqixVVhuqVGWNRFZXGsKpc+o0hIbQkKc8EC2GXWkIH8KH0BAaQkNoyB+mXXR7dXvbUEdXVdZut/NGuTxmvXwA+Swn3ZsN9OIAAAAASUVORK5CYII=') repeat 0 0;
+  pointer-events: none;
+}
+
+.line-output {
+  pointer-events: none;
 }
 
 .display {
-  /* margin: 50px 0 30px 0; */
   position: absolute;
-  width: 100%;
-  height: 300px;
-  max-width: 600px;
-  border: 1px solid blue;
   pointer-events: auto;
 }
-
-
 
 nav {
   position: fixed;
@@ -104,9 +102,6 @@ textarea {
   border: 1px solid rgb(20, 225, 116);
 }
 
-/* .node.c {
-  border: 1px solid red;
-} */
 
 .node:hover {
   border-color:rgb(115, 255, 1);
@@ -138,54 +133,6 @@ svg:hover {
   color: red;
   font-size: 12px;
   z-index: 99;
-}
-
-.cNode {
-  position: absolute;
-  height: 9px;
-  width: 9px;
-  margin: -4px 0 0 -4px;
-  border-radius: 50%;
-  border: 1px solid rgb(52, 247, 237);
-}
-
-.cNode:hover {
-  border-color:rgb(115, 255, 1);
-}
-
-.M {
-  border-color: red;
-}
-
-.wrapper.lines {
-  z-index: 2;
-}
-
-
-line.red {
-  stroke: 'red';
-}
-
-line.blue {
-  stroke: 'blue';
-}
-
-.coord {
-  color: white;
-  font-size: 13px;
-  width: 100%;
-}
-
-.coord:nth-of-type(odd) {
-  background-color: rgba(199, 199, 199, 0.295);
-}
-
-.control {
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-  max-width: 600px;
-  padding: 0 0 20px 10px;
 }
 
 
@@ -228,6 +175,7 @@ line.blue {
 }
 
 .content-wrapper {
+  position: relative;
   height: calc(100% - var(--handle-h));
   width: 100%;
   display: flex;

@@ -8,33 +8,43 @@ import { Path } from './classes/path.js'
 
 // TODO add point delete
 // TODO add fill
- // TODO curve has bug when shape is closed with Z
  // TODO enable removal of curve
+ // TODO refactor to reassign how the outputs are managed (display, output and line output should be within the artboard, not in the elements)
 
 
 function init() {
   elements.windows = {
-    artboard: new Artboard({
-      el: elements.display,
-      action: (e, el) => {
-        if (settings.drawMode !== 'plot') return
-        if (settings.addNewPath) {
-          console.log('new')
-          settings.currentPath = new Path({}, el.pos(e))
-          settings.addNewPath = false
-        } else {
-          console.log('add')
-          settings.currentPath.addPoint('L', el.pos(e))
-          // settings.currentPath.updatePath()
-          // console.log(el.pos(e))
-        }
+    artboard: new NavWindow({
+      name: 'artboard',
+      container: elements.body,
+      isOpen: true,
+      w: 500, h: 300,
+      pos: { x: 10, y: 50 },
+      content: nav => {
+        new Artboard({
+          container: nav.contentWrapper,
+          nav,
+          action: (e, el) => {
+            if (settings.drawMode !== 'plot') return
+            if (settings.addNewPath) {
+              console.log('new')
+              settings.currentPath = new Path({}, el.pos(e))
+              settings.addNewPath = false
+            } else {
+              console.log('add')
+              settings.currentPath.addPoint('L', el.pos(e))
+              // settings.currentPath.updatePath()
+              // console.log(el.pos(e))
+            }
+          }
+        })
       }
     }),
     svgInput: new NavWindow({
       name: 'svg input',
       container: elements.body,
       isOpen: true,
-      x: 10, y: 600,
+      pos: { x: 10, y: 600 },
       content: nav => {
         new TextArea({
           container: nav.contentWrapper,
@@ -49,8 +59,7 @@ function init() {
     menuButtons: new NavWindow({
       name: 'menu',
       container: elements.body,
-      x: 10,
-      y: 400,
+      pos: { x: 10, y: 400 },
       isOpen: true,
       content: nav => nav.addButtons([
         {
@@ -81,20 +90,26 @@ function init() {
           }
         },
         {
-          btnText: 'show',
+          btnText: 'show current',
           action: ()=> {
             console.log('current path', settings.currentPath)
+          }
+        },
+        {
+          btnText: 'show el',
+          action: ()=> {
+            console.log('el', elements)
           }
         }
       ])
     })
   }
 
-  console.log(settings.inputs.svgInput.value)
+  // console.log(settings.inputs.svgInput.value)
 
 
   mouse.move(document, 'add', e => {
-    const { x, y } = elements.windows.artboard.pos(e)
+    const { x, y } = elements.artboard.pos(e)
     elements.indicator.innerHTML = `${x} | ${y}` 
   })
 
