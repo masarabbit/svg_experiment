@@ -1,5 +1,6 @@
 import PageObject from './pageObject.js'
-import { elements } from '../elements.js'
+import { elements, settings } from '../elements.js'
+import { Path } from '../classes/path.js'
 
 
 class Artboard extends PageObject {
@@ -26,7 +27,7 @@ class Artboard extends PageObject {
     elements.lineOutput = this.el.querySelector('.line-output')
     console.log(elements)
 
-    elements.display.addEventListener('click', e => this.action(e, this))
+    elements.display.addEventListener('click', this.createOrUpdatePath)
   }
   pos(e) {
     const { left, top } = elements.display.getBoundingClientRect()
@@ -46,6 +47,15 @@ class Artboard extends PageObject {
       if (settings.drawMode === 'curve') return
       settings.drawMode = settings.prevDrawMode
     })
+  }
+  createOrUpdatePath = e => {
+    if (settings.drawMode !== 'plot') return
+    if (settings.addNewPath) {
+      settings.currentPath = new Path({}, this.pos(e))
+      settings.addNewPath = false
+    } else {
+      settings.currentPath.addPoint('L', this.pos(e))
+    }
   }
 }
 

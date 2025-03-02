@@ -125,18 +125,22 @@ class MainNode extends Node {
   constructor(props) {
     super(props)
     this.setUp()
+    if (this.point.letter !== 'Z') this.addClickEvent()
+  }
+
+  get pos() {
+    return this.point.pos
+  }
+  addClickEvent() {
     this.el.addEventListener('click', ()=> {
-      if (settings.drawMode === 'curve' &&  this.point.letter !== 'Z') {
+      if (settings.drawMode === 'curve') {
         if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
           this.path.lastPoint.addLeftNode()
         } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
-        if(this.point.nextPoint.letter !== 'Z' && this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
+        if(this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
         this.path.updatePath()
       }
     })
-  }
-  get pos() {
-    return this.point.pos
   }
   extraDragAction() {
     this.path.updatePath()
@@ -254,9 +258,6 @@ class Path extends PageObject {
       ...props
     })
     this.addToPage()
-    this.el.addEventListener('click', ()=> {
-      console.log('test')
-    })
     this.addPoint('M', pos)
     this.addDragEvent()
   }

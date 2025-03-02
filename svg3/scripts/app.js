@@ -21,23 +21,7 @@ function init() {
       w: 500, h: 300,
       pos: { x: 10, y: 50 },
       content: nav => {
-        new Artboard({
-          container: nav.contentWrapper,
-          nav,
-          action: (e, el) => {
-            if (settings.drawMode !== 'plot') return
-            if (settings.addNewPath) {
-              console.log('new')
-              settings.currentPath = new Path({}, el.pos(e))
-              settings.addNewPath = false
-            } else {
-              console.log('add')
-              settings.currentPath.addPoint('L', el.pos(e))
-              // settings.currentPath.updatePath()
-              // console.log(el.pos(e))
-            }
-          }
-        })
+        new Artboard({ container: nav.contentWrapper })
       }
     }),
     svgInput: new NavWindow({
