@@ -1,5 +1,5 @@
 import PageObject from './pageObject.js';
-import { settings, elements } from '../elements.js';
+import { settings } from '../elements.js';
 import { xY, kebabToCamelCase, mouse } from '../utils.js'
 
 class Node extends PageObject {
@@ -96,7 +96,7 @@ class NodeLine {
   constructor(props) {
     Object.assign(this, {
       el: document.createElementNS('http://www.w3.org/2000/svg','line'),
-      container: elements.lineOutput,
+      container: props.point.path.artboard.lineOutput,
       ...props
     })
     this.container.appendChild(this.el)
@@ -209,7 +209,7 @@ class Point {
       this.mainNode = new MainNode({
         path: this.path,
         point: this,
-        container: elements.display,
+        container: this.path.artboard.display,
         className: this.letter + this.pointIndex
       })
     }
@@ -241,7 +241,7 @@ class Point {
     this.leftNode = new LeftNode({
       path: this.path,
       point: this,
-      container: elements.display,
+      container: this.path.artboard.display,
     })
   }
   addRightNode() {
@@ -250,7 +250,7 @@ class Point {
     this.rightNode = new RightNode({
       path: this.path,
       point: this,
-      container: elements.display,
+      container: this.path.artboard.display,
     })
   }
 }
@@ -262,7 +262,7 @@ class Path extends PageObject {
       pos: { x: 0, y: 0 },
       canMove: true,
       points: [],
-      container: elements.output,
+      container: props.artboard.output,
       svgStyle: settings.svgStyle,
       id: settings.idCount,
       ...props

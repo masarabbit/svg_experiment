@@ -7,34 +7,36 @@ const elements = {
   output: document.querySelector('.output'),
   lineOutput: document.querySelector('.line-output'),
   windows: {},
-  saveDataName: 'window-pos',
-  // saveData() {
-  //   const obj = {}
-  //   Object.keys(this.windows).forEach(key => {
-  //     const { x, y, isOpen } = this.windows[key]
-  //     const { column, row, cellSize } = settings
-  //     obj[key] = { x, y, isOpen, column, row, cellSize }
-  //   })
-  //   localStorage.setItem(this.saveDataName, JSON.stringify(obj))
-  // },
-  // readData() {
-  //   const saveData = localStorage.getItem(this.saveDataName)
-  //   if (saveData) {
-  //     const data = JSON.parse(saveData)
+  saveDataName: 'svg-window-pos',
+  saveData() {
+    const obj = {}
+    Object.keys(this.windows).forEach(key => {
+      const { pos, isOpen, w, h } = this.windows[key]
+      // const { column, row, cellSize } = settings
+      obj[key] = { pos, isOpen, w, h
+        // column, row, cellSize 
+      }
+    })
+    localStorage.setItem(this.saveDataName, JSON.stringify(obj))
+  },
+  readData() {
+    const saveData = localStorage.getItem(this.saveDataName)
+    if (saveData) {
+      const data = JSON.parse(saveData)
 
-  //     Object.keys(data).forEach(key => {
-  //       ;['x', 'y', 'isOpen'].forEach(prop => {
-  //         this.windows[key][prop] = data[key][prop]
-  //       })
-  //       this.windows[key].setUp()
+      Object.keys(data).forEach(key => {
+        ;['pos', 'isOpen', 'w', 'h'].forEach(prop => {
+          this.windows[key][prop] = data[key][prop]
+        })
+        this.windows[key].setUp()
 
-  //       ;['column', 'row', 'cellSize'].forEach(prop => {
-  //         settings.inputs[prop].value = data[key][prop]
-  //       })
-  //       this.artboard.resize()
-  //     })
-  //   }
-  // }
+        // ;['column', 'row', 'cellSize'].forEach(prop => {
+        //   settings.inputs[prop].value = data[key][prop]
+        // })
+        // this.artboard.resize()
+      })
+    }
+  }
 }
 
 const settings = {

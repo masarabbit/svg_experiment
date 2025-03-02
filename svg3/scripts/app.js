@@ -21,7 +21,7 @@ function init() {
       w: 500, h: 300,
       pos: { x: 10, y: 50 },
       content: nav => {
-        new Artboard({ container: nav.contentWrapper })
+        new Artboard({ container: nav.contentWrapper, nav })
       }
     }),
     svgInput: new NavWindow({
@@ -98,10 +98,9 @@ function init() {
 
 
 
-  mouse.move(document, 'add', e => {
-    const { x, y } = elements.artboard.pos(e)
-    elements.indicator.innerHTML = `${x} | ${y}` 
-  })
+
+
+  elements.readData()
 
 }
 

@@ -40,7 +40,13 @@ h1 {
   text-transform: uppercase;
 }
 
-.display-wrapper > div {
+.display-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.display-wrapper > div:not(.resize-handle) {
   position: absolute;
   top: 0px;
   left: 0px;
@@ -240,4 +246,13 @@ svg {
 
 .freeze {
   pointer-events: none !important;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  border: 1px solid #000;
+  width: 20px;
+  height: 20px;
 }

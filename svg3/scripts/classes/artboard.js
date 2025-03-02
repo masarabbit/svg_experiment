@@ -1,6 +1,7 @@
 import PageObject from './pageObject.js'
 import { elements, settings } from '../elements.js'
 import { Path } from '../classes/path.js'
+import { mouse } from '../utils.js'
 
 
 class Artboard extends PageObject {
@@ -16,23 +17,34 @@ class Artboard extends PageObject {
           <div class="line-output">
             <svg class="line-output-svg" width="100%" height="100%" fill="transparent"></svg>
           </div>
+          <div class="resize-handle"></div>
         `
       }),
       ...props,
     })
     this.addToPage()
-    elements.artboard = this
 
-    // TODO this bit could be renamed so it could be looped
-    elements.display = this.el.querySelector('.display')
-    elements.output = this.el.querySelector('.output-svg')
-    elements.lineOutput = this.el.querySelector('.line-output-svg')
-    console.log(elements)
+    this.display = this.el.querySelector('.display')
+    this.output = this.el.querySelector('.output-svg')
+    this.lineOutput = this.el.querySelector('.line-output-svg')
+    this.resizeHandle = this.el.querySelector('.resize-handle')
 
-    elements.display.addEventListener('click', this.createOrUpdatePath)
+    this.display.addEventListener('click', this.createOrUpdatePath)
+
+    mouse.move(document, 'add', e => {
+      const { x, y } = this.pos(e)
+      elements.indicator.innerHTML = `${x} | ${y}` 
+    })
+
+    mouse.down(this.resizeHandle, 'add', e => {
+      console.log('down')
+      this.canResize = true
+      this.onGrab(e)
+    })
+    mouse.up(this.resizeHandle, 'add',()=> this.canResize = false)
   }
   pos(e) {
-    const { left, top } = elements.display.getBoundingClientRect()
+    const { left, top } = this.display.getBoundingClientRect()
     return {
       x: e.pageX - left - window.scrollX,
       y: e.pageY - top - window.scrollY
@@ -53,11 +65,26 @@ class Artboard extends PageObject {
   createOrUpdatePath = e => {
     if (settings.drawMode !== 'plot') return
     if (settings.addNewPath) {
-      settings.currentPath = new Path({}, this.pos(e))
+      settings.currentPath = new Path({ artboard: this }, this.pos(e))
       settings.addNewPath = false
     } else {
       settings.currentPath.addPoint('L', this.pos(e))
     }
+  }
+  resizeBox = e =>{
+    console.log('resize')
+    const { pos } = this.nav
+    const { x, y } = this.nav.touchPos(e)
+    this.nav.pos.x = x > pos.x ? pos.x : x
+    this.nav.pos.y = y > pos.y ? pos.y : y
+
+    this.nav.w = Math.abs(pos.x - x)
+    this.nav.h = Math.abs(pos.y - y)
+    this.nav.setStyles()
+
+    // this.w = Math.abs(defPos.x - x)
+    // this.h = Math.abs(defPos.y - y)
+    // this.setStyles()
   }
 }
 

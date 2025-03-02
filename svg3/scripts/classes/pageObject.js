@@ -72,16 +72,6 @@ class PageObject {
   distanceBetween(target) {
     return distanceBetween(target, this.pos)
   }
-  // resizeBox = e =>{
-  //   const { defPos } = this
-  //   const { x, y } = elements.artboard.drawPos(e)
-  //   this.x = x > defPos.x ? defPos.x : x
-  //   this.y = y > defPos.y ? defPos.y : y
-  //   this.resizeCanvas({ 
-  //     w: Math.abs(defPos.x - x),
-  //     h: Math.abs(defPos.y - y),
-  //   })
-  // }
 }
 
 export default PageObject
