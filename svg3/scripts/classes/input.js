@@ -1,6 +1,6 @@
 // import { camelCaseToNormalString } from '../utils.js'
 import { settings, elements } from '../elements.js'
-
+import { camelCaseToNormalString } from '../utils.js'
 class TextArea {
   constructor(props) {
     Object.assign(this, {
@@ -17,13 +17,6 @@ class TextArea {
       className: 'mini-wrap',
     })
     this.el.append(buttonWrapper)
-    // this.buttons.forEach(b => {
-    //   new Button({
-    //     ...b,
-    //     container: buttonWrapper,
-    //     action: () => b.action(this)
-    //   })
-    // })
     settings.inputs[this.inputName] = this
   }
   get value() {
@@ -31,12 +24,66 @@ class TextArea {
   }
   set value(val) {
     this.input.value = val
-    // settings[this.inputName] = Array.isArray(val) ? val : val.split(',')
   }
   copyText() {
     this.input.select()
     this.input.setSelectionRange(0, 999999) // For mobile devices 
     document.execCommand('copy')
+  }
+}
+
+class Input {
+  constructor(props) {
+    const label = camelCaseToNormalString(props.inputName)
+    Object.assign(this, {
+      el: Object.assign(document.createElement('div'), {
+        className: props.isColor ? 'color-input-wrap' : 'input-wrap',
+        innerHTML: `
+          <label class="${props.isColor ? 'color-label' : ''}" for="${props.inputName}">
+            ${props.isColor ? '' : label}
+          </label>
+          <input 
+            id="${props.inputName}" 
+            class="${props?.className || ''} ${props.inputName}" 
+            type="${props.isColor ? 'color' : 'text'}" 
+            placeholder="${label}"
+          >
+        `
+      }),
+      ...props,
+    })
+    props.container.appendChild(this.el)
+    this.input = this.el.querySelector('input')
+    this.addChangeListener()
+    // if (this.default) settings[this.inputName] = this.default
+    settings.inputs[this.inputName] = this.input
+    if (['fill', 'stroke'].includes(this.inputName)) {
+      this.label = this.el.querySelector('label')
+      this.updateColor()
+    } else {
+      this.input.value = settings[props.inputName]
+    }
+  }
+  get value() {
+    return this.isNum ? +this.input.value : this.input.value
+  }
+  set value(val) {
+    const v = this.isNum ? +val : val
+    this.input.value = v
+    settings[this.inputName] = v
+  }
+  updateColor() {
+    const label = this.label || settings.inputs[this.inputName.replace('Hex', '')].label
+    label.style.backgroundColor = settings[this.inputName]
+    if (settings.inputs?.[this.inputName + 'Hex']) settings.inputs[this.inputName + 'Hex'].value = settings[this.inputName]
+  }
+  addChangeListener() {
+    this.input.addEventListener('change', e => {
+      settings[this.inputName] = e.target.value
+      if (['fill', 'fillHex', 'stroke', 'strokeHex'].includes(this.inputName)) this.updateColor()
+      settings.currentPath.updateSvgStyle()
+      if (this.update) this.update() 
+    })
   }
 }
 
@@ -58,5 +105,6 @@ class Button {
 
 export {
   TextArea,
+  Input,
   Button,
 }

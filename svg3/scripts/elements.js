@@ -12,10 +12,8 @@ const elements = {
     const obj = {}
     Object.keys(this.windows).forEach(key => {
       const { pos, isOpen, w, h } = this.windows[key]
-      // const { column, row, cellSize } = settings
-      obj[key] = { pos, isOpen, w, h
-        // column, row, cellSize 
-      }
+      const { strokeWidth, smoothing, fillHex, strokeHex } = settings
+      obj[key] = { pos, isOpen, w, h, strokeWidth, smoothing, fillHex, strokeHex }
     })
     localStorage.setItem(this.saveDataName, JSON.stringify(obj))
   },
@@ -30,10 +28,9 @@ const elements = {
         })
         this.windows[key].setUp()
 
-        // ;['column', 'row', 'cellSize'].forEach(prop => {
-        //   settings.inputs[prop].value = data[key][prop]
-        // })
-        // this.artboard.resize()
+        ;['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].forEach(prop => {
+          settings.inputs[prop].value = data[key][prop]
+        })
       })
     }
   }
@@ -41,12 +38,6 @@ const elements = {
 
 const settings = {
   paths: [],
-  svgStyle: {
-    fill: 'transparent',
-    stroke: 'grey',
-    strokeWidth: 2,
-    smoothing: 0.2,
-  },
   snap: 1,
   addNewPath: true,
   currentPath: null,
@@ -57,7 +48,16 @@ const settings = {
   recordState() {
     console.log('record')
   },
-  inputs: {}
+  inputs: {},
+  
+  // svg styling
+  fill: 'transparent',
+  fillHex: 'transparent',
+  stroke: '#cccccc',
+  strokeHex: '#cccccc',
+  strokeWidth: 10,
+  smoothing: 0.2,
+
   // get currentPath() {
   //   return this.paths[this.currentIndex]
   // }

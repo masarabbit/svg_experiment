@@ -57,7 +57,7 @@ class CurveNode extends Node {
     }
   }
   get lineLength() {
-    return this.cNodeLine.length * settings.svgStyle.smoothing
+    return this.cNodeLine.length * this.path.svgStyle.smoothing
   }
   get lineAngle() {
     return this.cNodeLine.angle + this.angleOffset
@@ -263,19 +263,30 @@ class Path extends PageObject {
       canMove: true,
       points: [],
       container: props.artboard.output,
-      svgStyle: settings.svgStyle,
+      svgStyle: {
+        fill: settings.fill,
+        stroke: settings.stroke,
+        strokeWidth: settings.strokeWidth,
+        smoothing: settings.smoothing
+      },
       id: settings.idCount,
       ...props
     })
     this.addToPage()
     this.addPoint('M', pos)
     this.addDragEvent()
+    settings.currentPath = this
   }
   get firstPoint() {
     return this.points?.[0]
   }
   addPoint(letter, pos) {
     new Point({ letter, pos, path: this })
+    this.updatePath()
+  }
+  updateSvgStyle() {
+    const { fill, stroke, strokeWidth, smoothing } = settings
+    this.svgStyle = { fill, stroke, strokeWidth, smoothing }
     this.updatePath()
   }
   closePath() {

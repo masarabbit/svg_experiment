@@ -1,15 +1,14 @@
 import { elements, settings } from './elements.js'
 import { NavWindow } from './classes/nav.js'
-import { TextArea } from './classes/input.js'
-import { mouse } from './utils.js'
+import { TextArea, Input } from './classes/input.js'
+// import { mouse } from './utils.js'
 import { Artboard } from './classes/Artboard.js'
-import { Path } from './classes/path.js'
+// import { Path } from './classes/path.js'
 
 
 // TODO add point delete
-// TODO add fill
- // TODO enable removal of curve
- // TODO refactor to reassign how the outputs are managed (display, output and line output should be within the artboard, not in the elements)
+// TODO enable removal of curve
+// TODO add save
 
 
 function init() {
@@ -37,6 +36,60 @@ function init() {
             console.log('test', settings.currentPath)
               settings.currentPath.svg.el.innerHTML = `<path d="${e.target.value}"></path>`
           }
+        })
+      }
+    }),
+    main: new NavWindow({
+      name: 'main',
+      container: elements.body,
+      isOpen: true,
+      pos: { x: 400, y: 0 },
+      // fill: 'transparent',
+      // stroke: null,
+      // strokeWidth: 10,
+      // smoothing: 0.2,
+      content: nav => {
+        [
+          {
+            name: 'fill',
+            isColor: true,
+            isNum: false,
+          },
+          {
+            name: 'fillHex',
+            isColor: false,
+            isNum: false,
+          },
+          {
+            name: 'stroke',
+            isColor: true,
+            isNum: false,
+          },
+          {
+            name: 'strokeHex',
+            isColor: false,
+            isNum: false,
+          },
+          {
+            name: 'strokeWidth',
+            isColor: false,
+            isNum: true,
+          },
+          {
+            name: 'smoothing',
+            isColor: false,
+            isNum: true,
+          },
+        ].forEach(input => {
+          const { name, isColor, isNum } = input
+          settings.inputs[input.name] = new Input({
+            inputName: name,
+            container: nav.contentWrapper,
+            isColor,
+            isNum,
+            className: isNum ? 'no' : '',
+            // update: ()=> settings.currentPath.updateSvgStyle()
+          })
         })
       }
     }),
