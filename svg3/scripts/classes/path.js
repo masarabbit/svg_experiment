@@ -29,9 +29,11 @@ class CurveNode extends Node {
     this.setUp()
   }
   get prevPoint() {
+    if (this.point === this.path.firstPoint && this.path.lastPoint) return this.path.lastPoint.prevPoint.pos
     return this.point.prevPoint?.pos || this.point.pos
   }
   get nextPoint() {
+    if (this.point === this.path?.lastPoint) return this.path.firstPoint.nextPoint.pos
     return this.point.nextPoint?.pos || this.point.pos
   }
   get cNodeLine() {
