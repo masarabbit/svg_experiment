@@ -83,9 +83,11 @@ class CurveNode extends Node {
   }
   extraDragAction() {
     this.path.updatePath()
+    this.handleLine.update()
     if (this.pair) {
       this.pair.pos = this.getOffsetPos()
       this.pair.setStyles()
+      this.pair.handleLine.update()
     }
   }
 }
@@ -98,9 +100,9 @@ class NodeLine {
       ...props
     })
     this.container.appendChild(this.el)
-    this.updateLine()
+    this.update()
   }
-  updateLine() {
+  update() {
     const lineStyle = {
       stroke: this.color,
       'stroke-width': this.strokeWidth,
@@ -124,7 +126,7 @@ class LeftNode extends CurveNode {
       angleOffset: Math.PI,
       ...props,
     })
-    this.line = new NodeLine({
+    this.handleLine = new NodeLine({
       point: this.point,
       cNode: this,
       color: 'orange'
@@ -144,7 +146,7 @@ class RightNode extends CurveNode {
       angleOffset: 0,
       ...props,
     })
-    this.line = new NodeLine({
+    this.handleLine = new NodeLine({
       point: this.point,
       cNode: this,
       color: 'red'
@@ -155,7 +157,6 @@ class RightNode extends CurveNode {
     return this.point.leftNode
   }
 }
-
 
 class MainNode extends Node {
   constructor(props) {
@@ -189,27 +190,12 @@ class MainNode extends Node {
         if (this.point[node]) {
           this.point[node].addXy(this.grabPos.a)
           this.point[node].setStyles()
+          this.point[node].handleLine.update()
         }
       })
     }
   }
 }
-
-// class Svg extends PageObject {
-//   constructor(props) {
-//     super({
-//       el: Object.assign(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), {
-//         id: `svg-${props.id}`,
-//       }),
-//       ...props,
-//     })
-//     ;['width', 'height'].forEach(key => {
-//       this.el.setAttribute(key, '100%')
-//     })
-//     this.addToPage()
-//   }
-// }
-
 class Point {
   constructor(props) {
     Object.assign(this, {
@@ -269,8 +255,6 @@ class Point {
   }
 }
 
-
-
 class Path extends PageObject {
   constructor(props, pos) {
     super({
@@ -304,12 +288,6 @@ class Path extends PageObject {
     new Point({ letter: 'Z', path: this })
     this.updatePath()
   }
-  updateLines() {
-    this.points.forEach(p => {
-      if (p.leftNode) p.leftNode.line.updateLine()
-      if (p.rightNode) p.rightNode.line.updateLine()
-    })
-  }
   updatePath() {
     const newPath = this.points.map(n => {
       const { letter } = n
@@ -326,7 +304,6 @@ class Path extends PageObject {
       this.el.setAttribute(key, this.svgStyle[kebabToCamelCase(key)])
     })
     this.el.setAttribute('d', newPath)
-    this.updateLines()
   }
   dragAction() {
     this.points.forEach(point => {
@@ -338,12 +315,29 @@ class Path extends PageObject {
         if (point[node]) {
           point[node].addXy(this.grabPos.a)
           point[node].setStyles()
+          point[node].handleLine.update()
         }
       })
     })
     this.updatePath()
   }
 }
+
+
+// class Svg extends PageObject {
+//   constructor(props) {
+//     super({
+//       el: Object.assign(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), {
+//         id: `svg-${props.id}`,
+//       }),
+//       ...props,
+//     })
+//     ;['width', 'height'].forEach(key => {
+//       this.el.setAttribute(key, '100%')
+//     })
+//     this.addToPage()
+//   }
+// }
 
 
 export {
