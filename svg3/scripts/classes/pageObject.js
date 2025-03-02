@@ -36,15 +36,6 @@ class PageObject {
   }
   addDragEvent() {
     mouse.down(this.el, 'add', this.onGrab)
-    // mouse.enter(this.el,'add', ()=> {
-    //   if (settings.drawMode === 'curve') return
-    //   settings.prevDrawMode = settings.drawMode
-    //   settings.drawMode = 'drag'
-    // })
-    // mouse.leave(this.el,'add', ()=> {
-    //   if (settings.drawMode === 'curve') return
-    //   settings.drawMode = settings.prevDrawMode
-    // })
   }
   addXy(xY) {
     this.pos.x -= xY.x
@@ -54,9 +45,12 @@ class PageObject {
     if (e.type[0] === 'm') e.preventDefault()
     this.grabPos.a.x = this.grabPos.b.x - x
     this.grabPos.a.y = this.grabPos.b.y - y
+    this.dragAction()
+    if (this.extraDragAction) this.extraDragAction()
+  }
+  dragAction() {
     this.addXy(this.grabPos.a)
     this.setStyles()
-    if (this.extraDragAction) this.extraDragAction()
   }
   onGrab = e => {
     this.grabPos.b = this.touchPos(e)

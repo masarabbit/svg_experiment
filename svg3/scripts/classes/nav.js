@@ -1,6 +1,6 @@
 import PageObject from './pageObject.js'
 import { Button } from './input.js'
-import { px, roundedClient, convertCameCase, mouse } from '../utils.js'
+import { px, roundedClient, camelCaseToNormalString } from '../utils.js'
 import { elements } from '../elements.js'
 
 class NavWindow extends PageObject {
@@ -10,7 +10,7 @@ class NavWindow extends PageObject {
         className: `nav-window ${props.className || ''}`,
         innerHTML: `
           <div class="handle">
-            ${`<p>${convertCameCase(props.name)}</p>` || '<span></span>'}
+            ${`<p>${camelCaseToNormalString(props.name)}</p>` || '<span></span>'}
             <div>
               ${props.selectAction
                 ? '<button class="select-btn"></button>'

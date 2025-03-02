@@ -8,7 +8,9 @@ class Artboard extends PageObject {
       el: Object.assign(document.createElement('div'), {
         className: 'display-wrapper',
         innerHTML: `
-          <div class="output"></div>
+          <div class="output">
+            <svg width="100%" height="100%"></svg>
+          </div>
           <div class="display"></div>
           <div class="line-output"></div>
         `
@@ -20,11 +22,11 @@ class Artboard extends PageObject {
 
     // TODO this bit could be renamed so it could be looped
     elements.display = this.el.querySelector('.display')
-    elements.output = this.el.querySelector('.output')
+    elements.output = this.el.querySelector('svg')
     elements.lineOutput = this.el.querySelector('.line-output')
     console.log(elements)
 
-    this.el.addEventListener('click', e => this.action(e, this))
+    elements.display.addEventListener('click', e => this.action(e, this))
   }
   pos(e) {
     const { left, top } = elements.display.getBoundingClientRect()

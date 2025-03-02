@@ -89,23 +89,29 @@ function init() {
             console.log('T')
           }
         },
+        // {
+        //   btnText: 'show current',
+        //   action: ()=> {
+        //     console.log('current path', settings.currentPath)
+        //   }
+        // },
+        // {
+        //   btnText: 'show el',
+        //   action: ()=> {
+        //     console.log('el', elements)
+        //   }
+        // },
         {
-          btnText: 'show current',
+          btnText: 'move',
           action: ()=> {
-            console.log('current path', settings.currentPath)
+            document.querySelector('.output').classList.toggle('touch')
+            elements.display.classList.toggle('freeze')
           }
         },
-        {
-          btnText: 'show el',
-          action: ()=> {
-            console.log('el', elements)
-          }
-        }
       ])
     })
   }
 
-  // console.log(settings.inputs.svgInput.value)
 
 
   mouse.move(document, 'add', e => {

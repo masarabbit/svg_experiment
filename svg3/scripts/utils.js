@@ -6,8 +6,15 @@ const px = n => `${n}px`
 const degToRad = deg => deg / (180 / Math.PI)
 const radToDeg = rad => Math.round(rad * (180 / Math.PI))
 
-const convertCameCase = string => {
-  return string.split('').map(letter => {
+const kebabToCamelCase = str => {
+  return str.split('-').map((word, i) => {
+    if (i) return String(word).charAt(0).toUpperCase() + String(word).slice(1)
+    return word
+  }).join('')
+}
+
+const camelCaseToNormalString = str => {
+  return str.split('').map(letter => {
     return (letter === letter.toUpperCase() || isNum(letter)) ?  ` ${letter.toLowerCase()}` : letter
   }).join('')
 }
@@ -33,11 +40,12 @@ export {
   nearestN,
   isNum,
   px,
-  convertCameCase,
+  camelCaseToNormalString,
   mouse,
   roundedClient,
   xY,
   degToRad,
   radToDeg,
-  distanceBetween
+  distanceBetween,
+  kebabToCamelCase
 }

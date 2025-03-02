@@ -1,6 +1,6 @@
 import PageObject from './pageObject.js';
 import { settings, elements } from '../elements.js';
-import { xY } from '../utils.js'
+import { xY, kebabToCamelCase, mouse } from '../utils.js'
 
 class Node extends PageObject {
   constructor(props) {
@@ -15,6 +15,18 @@ class Node extends PageObject {
     this.setStyles()
     this.addToPage()
     this.addDragEvent()
+  }
+  addDragEvent() {
+    mouse.down(this.el, 'add', this.onGrab)
+    mouse.enter(this.el,'add', ()=> {
+      if (settings.drawMode === 'curve') return
+      settings.prevDrawMode = settings.drawMode
+      settings.drawMode = 'drag'
+    })
+    mouse.leave(this.el,'add', ()=> {
+      if (settings.drawMode === 'curve') return
+      settings.drawMode = settings.prevDrawMode
+    })
   }
 }
 
@@ -144,20 +156,20 @@ class MainNode extends Node {
   }
 }
 
-class Svg extends PageObject {
-  constructor(props) {
-    super({
-      el: Object.assign(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), {
-        id: `svg-${props.id}`,
-      }),
-      ...props,
-    })
-    ;['width', 'height'].forEach(key => {
-      this.el.setAttribute(key, '100%')
-    })
-    this.addToPage()
-  }
-}
+// class Svg extends PageObject {
+//   constructor(props) {
+//     super({
+//       el: Object.assign(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), {
+//         id: `svg-${props.id}`,
+//       }),
+//       ...props,
+//     })
+//     ;['width', 'height'].forEach(key => {
+//       this.el.setAttribute(key, '100%')
+//     })
+//     this.addToPage()
+//   }
+// }
 
 class Point {
   constructor(props) {
@@ -176,6 +188,10 @@ class Point {
         className: this.letter + this.pointIndex
       })
     }
+  }
+  addXy(xY) {
+    this.pos.x -= xY.x
+    this.pos.y -= xY.y
   }
   get pointIndex() {
     return this.path.points.indexOf(this)
@@ -227,16 +243,22 @@ class Point {
 class Path extends PageObject {
   constructor(props, pos) {
     super({
-      points: [],
-      svg: new Svg({
-        id: 'test',
-        container: elements.output,
+      el: Object.assign(document.createElementNS('http://www.w3.org/2000/svg','path'), {
       }),
+      pos: { x: 0, y: 0 },
+      canMove: true,
+      points: [],
+      container: elements.output,
       svgStyle: settings.svgStyle,
       id: settings.idCount,
       ...props
     })
+    this.addToPage()
+    this.el.addEventListener('click', ()=> {
+      console.log('test')
+    })
     this.addPoint('M', pos)
+    this.addDragEvent()
   }
   get firstPoint() {
     return this.points?.[0]
@@ -271,9 +293,27 @@ class Path extends PageObject {
           : `${letter} ${xY(pos)}`
     }).join(' ')
     settings.inputs.svgInput.value = newPath
-    const { fill, stroke, strokeWidth } = settings.svgStyle
-    this.svg.el.innerHTML = `<path fill="${fill}" stroke="${stroke}" stroke-width=${strokeWidth} d="${newPath}"></path>`
+
+    ;['fill', 'stroke', 'stroke-width'].forEach(key=> {
+      this.el.setAttribute(key, this.svgStyle[kebabToCamelCase(key)])
+    })
+    this.el.setAttribute('d', newPath)
     this.updateLines()
+  }
+  dragAction() {
+    this.points.forEach(point => {
+      if (point.letter === 'Z') return
+      // when we have last point, we should only move M once
+      if (!this.lastPoint || point.letter !== 'M') point.addXy(this.grabPos.a)
+      if (point.mainNode) point.mainNode.setStyles()
+      ;['leftNode', 'rightNode'].forEach(node => {
+        if (point[node]) {
+          point[node].addXy(this.grabPos.a)
+          point[node].setStyles()
+        }
+      })
+    })
+    this.updatePath()
   }
 }
 

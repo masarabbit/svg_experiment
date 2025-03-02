@@ -228,3 +228,16 @@ svg:hover {
 .menu-btn {
   margin: 4px;
 }
+
+svg {
+  position: absolute;
+  z-index: 999 !important;
+}
+
+.touch {
+  pointer-events: all;
+}
+
+.freeze {
+  pointer-events: none !important;
+}

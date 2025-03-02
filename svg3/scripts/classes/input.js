@@ -1,4 +1,4 @@
-// import { convertCameCase } from '../utils.js'
+// import { camelCaseToNormalString } from '../utils.js'
 import { settings, elements } from '../elements.js'
 
 class TextArea {
