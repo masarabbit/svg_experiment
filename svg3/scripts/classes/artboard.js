@@ -71,7 +71,6 @@ class Artboard extends PageObject {
     }
   }
   resizeBox = e =>{
-    console.log('resize')
     const { pos } = this.nav
     const { x, y } = this.nav.touchPos(e)
     this.nav.pos.x = x > pos.x ? pos.x : x

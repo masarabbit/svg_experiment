@@ -19,13 +19,12 @@ class Node extends PageObject {
   addDragEvent() {
     mouse.down(this.el, 'add', this.onGrab)
     mouse.enter(this.el,'add', ()=> {
-      if (settings.drawMode === 'curve') return
-      settings.prevDrawMode = settings.drawMode
+      if (settings.drawMode !== 'plot') return
       settings.drawMode = 'drag'
     })
     mouse.leave(this.el,'add', ()=> {
-      if (settings.drawMode === 'curve') return
-      settings.drawMode = settings.prevDrawMode
+      if (settings.drawMode !== 'drag') return
+      settings.drawMode = 'plot'
     })
   }
 }
@@ -169,14 +168,53 @@ class MainNode extends Node {
   }
   addClickEvent() {
     this.el.addEventListener('click', ()=> {
-      if (settings.drawMode === 'curve') {
-        if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
-          this.path.lastPoint.addLeftNode()
-        } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
-        if(this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
-        this.path.updatePath()
-      }
+      settings.currentPath = this.path
+      if (settings.drawMode === 'curve') this.addCurve()
+      if (settings.drawMode === 'remove-curve') this.removeCurve()
+      if (settings.drawMode === 'delete') this.deletePoint()
     })
+  }
+  removeCurve() {
+    if (!!(this.point.leftNode || this.point.rightNode)) {
+      this.point.removeCurveNodes()
+      this.path.updatePath()
+      return
+    }
+  }
+  addCurve() {
+    if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
+      this.path.lastPoint.addLeftNode()
+    } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
+    if(this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
+    this.path.updatePath()
+  }
+  deletePoint() {
+    this.point.removeMainNode()
+    this.point.removeCurveNodes()
+
+    if (this.point.letter === 'M' && this.path.lastPoint) {
+      this.path.lastPoint.removeCurveNodes()
+      this.path.points = this.path.points.filter(p => p !== this.path.lastPoint && p.letter !== 'Z')
+      this.path.lastPoint = null
+    }
+
+    this.path.points = this.path.points.filter(p => p !== this.point)
+    this.path.point = null
+
+
+    if (!this.path.points.length) {
+      //? remove any excess points
+      // this.path.points.forEach(p => {
+      //   p.removeMainNode()
+      //   p.removeCurveNodes()
+      // })
+      settings.paths = settings.paths.filter(p => p !== this.path)
+      settings.addNewPath = true
+    } else if (!this.path.points.some(p => p.letter === 'M')) {
+      this.path.points[0].letter = 'M'
+    }
+
+    if (this.path) this.path.updatePath()
   }
   extraDragAction() {
     this.path.updatePath()
@@ -235,6 +273,19 @@ class Point {
   get xy2() {
     return this?.leftNode?.pos || this.pos
   }
+  removeMainNode() {
+    this.mainNode.remove()
+    this.mainNode = null
+  }
+  removeCurveNodes() {
+    ;['leftNode', 'rightNode'].forEach(node => {
+      if (this[node]) {
+        this[node].handleLine.el.remove()
+        this[node].remove()
+        this[node] = null
+      }
+    })
+  }
   addLeftNode() {
     this.letter = 'C'
     this.isCurve = true
@@ -276,6 +327,7 @@ class Path extends PageObject {
     this.addPoint('M', pos)
     this.addDragEvent()
     settings.currentPath = this
+    this.el.addEventListener('click', ()=> settings.currentPath = this)
   }
   get firstPoint() {
     return this.points?.[0]

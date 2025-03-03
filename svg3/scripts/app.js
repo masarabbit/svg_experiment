@@ -6,10 +6,9 @@ import { Artboard } from './classes/Artboard.js'
 // import { Path } from './classes/path.js'
 
 
-// TODO add point delete
-// TODO enable removal of curve
 // TODO add save / svg download
-// TODO add visualisation for selected mode
+// TODO make visualisation of mode clearer
+// TODO add button icons
 
 
 function init() {
@@ -34,8 +33,7 @@ function init() {
           container: nav.contentWrapper,
           inputName: 'svgInput',
           action: e => {
-            console.log('test', settings.currentPath)
-              settings.currentPath.svg.el.innerHTML = `<path d="${e.target.value}"></path>`
+            settings.currentPath.svg.el.innerHTML = `<path d="${e.target.value}"></path>`
           }
         })
       }
@@ -103,36 +101,38 @@ function init() {
         {
           btnText: 'N',
           action: ()=> {
-            console.log('N')
+            settings.addNewPath = true
+            settings.drawMode = 'plot'
           }
         },
         {
           btnText: 'Z',
-          action: ()=> {
-            console.log('Z')
-            // settings.currentPath.addPoint('L', settings.currentPath.points[settings.currentPath.points.length -1 ].pos)
-            settings.currentPath.closePath()
-          }
+          action: ()=> settings.currentPath?.closePath()
+        },
+        {
+          btnText: 'P',
+          action: ()=> settings.updateMode('plot')
+        },
+        {
+          btnText: 'D',
+          action: ()=> settings.updateMode('delete')
         },
         {
           btnText: 'C',
           action: ()=> {
-            settings.drawMode = settings.drawMode === 'curve' ? 'plot' : 'curve'
-            console.log('c', settings.drawMode)
+            settings.updateMode('curve')
           }
         },
         {
-          btnText: 'T',
+          btnText: 'RC',
+          action: ()=> settings.updateMode('remove-curve')
+        },
+        {
+          btnText: 'show current',
           action: ()=> {
-            console.log('T')
+            console.log('current path', settings.currentPath)
           }
         },
-        // {
-        //   btnText: 'show current',
-        //   action: ()=> {
-        //     console.log('current path', settings.currentPath)
-        //   }
-        // },
         // {
         //   btnText: 'show el',
         //   action: ()=> {
@@ -142,8 +142,7 @@ function init() {
         {
           btnText: 'move',
           action: ()=> {
-            document.querySelector('.output').classList.toggle('touch')
-            elements.display.classList.toggle('freeze')
+            settings.updateMode('move')
           }
         },
       ])
@@ -153,7 +152,7 @@ function init() {
 
 
 
-
+  settings.updateMode('plot')
   elements.readData()
 
 }

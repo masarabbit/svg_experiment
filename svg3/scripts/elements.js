@@ -3,9 +3,7 @@
 const elements = {
   body: document.querySelector('body'),
   indicator: document.querySelector('.indicator'),
-  display: document.querySelector('.display'),
-  output: document.querySelector('.output'),
-  lineOutput: document.querySelector('.line-output'),
+  modeIndicator: document.querySelector('.mode-indicator'),
   windows: {},
   saveDataName: 'svg-window-pos',
   saveData() {
@@ -30,9 +28,11 @@ const elements = {
 
         ;['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].forEach(prop => {
           settings.inputs[prop].value = data[key][prop]
+          settings[prop] = data[key][prop]
           if (prop.includes('Hex')) settings.inputs[prop].updateColor()
         })
       })
+
     }
   }
 }
@@ -44,13 +44,19 @@ const settings = {
   currentPath: null,
   paths: [],
   idCount: 0,
-  prevDrawMode: 'plot',
   drawMode: 'plot',
   recordState() {
     console.log('record')
   },
   inputs: {},
-  
+  updateMode(mode) {
+    this.drawMode = mode
+    elements.modeIndicator.innerHTML = this.drawMode
+
+    const moveAction = mode === 'move' ? 'add' : 'remove'
+    document.querySelector('.output-svg').classList[moveAction]('touch')
+    document.querySelector('.display').classList[moveAction]('freeze')
+  },
   // svg styling
   fill: 'transparent',
   fillHex: 'transparent',

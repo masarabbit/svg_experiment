@@ -56,7 +56,8 @@ class Input {
     this.input = this.el.querySelector('input')
     this.addChangeListener()
     // if (this.default) settings[this.inputName] = this.default
-    settings.inputs[this.inputName] = this.input
+    settings.inputs[this.inputName] = this
+    // .input
     if (['fill', 'stroke'].includes(this.inputName)) {
       this.label = this.el.querySelector('label')
       this.updateColor()
@@ -73,9 +74,11 @@ class Input {
     settings[this.inputName] = v
   }
   updateColor() {
-    const label = this.label || settings.inputs[this.inputName.replace('Hex', '')].label
-    label.style.backgroundColor = settings[this.inputName]
-    if (settings.inputs?.[this.inputName + 'Hex']) settings.inputs[this.inputName + 'Hex'].value = settings[this.inputName]
+    const { inputName } = this
+    const label = this.label || settings.inputs[inputName.replace('Hex', '')].label
+    label.style.backgroundColor = settings[inputName]
+    if (settings.inputs?.[inputName + 'Hex']) settings.inputs[inputName + 'Hex'].value = settings[inputName]
+    if (settings.inputs?.[inputName.replace('Hex', '')]) settings.inputs[inputName.replace('Hex', '')].value = settings[inputName]
   }
   addChangeListener() {
     this.input.addEventListener('change', e => {
