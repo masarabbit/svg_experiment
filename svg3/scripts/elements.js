@@ -10,10 +10,10 @@ const elements = {
     const obj = {}
     Object.keys(this.windows).forEach(key => {
       const { pos, isOpen, w, h } = this.windows[key]
-      const { strokeWidth, smoothing, fillHex, strokeHex } = settings
-      obj[key] = { pos, isOpen, w, h, strokeWidth, smoothing, fillHex, strokeHex }
+      obj[key] = { pos, isOpen, w, h }
     })
-    localStorage.setItem(this.saveDataName, JSON.stringify(obj))
+    const { strokeWidth, smoothing, fillHex, strokeHex } = settings
+    localStorage.setItem(this.saveDataName, JSON.stringify({...obj, strokeWidth, smoothing, fillHex, strokeHex }))
   },
   readData() {
     const saveData = localStorage.getItem(this.saveDataName)
@@ -21,18 +21,17 @@ const elements = {
       const data = JSON.parse(saveData)
 
       Object.keys(data).forEach(key => {
-        ;['pos', 'isOpen', 'w', 'h'].forEach(prop => {
-          this.windows[key][prop] = data[key][prop]
-        })
-        this.windows[key].setUp()
-
-          ;['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].forEach(prop => {
-            settings.inputs[prop].value = data[key][prop]
-            settings[prop] = data[key][prop]
-            if (prop.includes('Hex')) settings.inputs[prop].updateColor()
+        if (['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].includes(key)) {
+          settings.inputs[key].value = data[key]
+          settings[key] = data[key]
+          if (key.includes('Hex')) settings.inputs[key].updateColor()
+        } else { 
+          ;['pos', 'isOpen', 'w', 'h'].forEach(prop => {
+            this.windows[key][prop] = data[key][prop]
           })
+          this.windows[key].setUp()
+        }
       })
-
     }
   }
 }
