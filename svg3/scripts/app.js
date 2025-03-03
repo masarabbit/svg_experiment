@@ -1,14 +1,18 @@
 import { elements, settings } from './elements.js'
 import { NavWindow } from './classes/nav.js'
-import { TextArea, Input } from './classes/input.js'
+import { TextArea, Input, Upload } from './classes/input.js'
 // import { mouse } from './utils.js'
 import { Artboard } from './classes/Artboard.js'
 // import { Path } from './classes/path.js'
 
 
-// TODO add save / svg download
+// TODO change svg layer ordering (this would involve sorting the points array)
+// TODO add SVG parser 
+   // TODO > enable reading an svg file to output shape
+
 // TODO make visualisation of mode clearer
 // TODO add button icons
+// TODO add delete path
 
 
 function init() {
@@ -38,15 +42,37 @@ function init() {
         })
       }
     }),
+    file: new NavWindow({
+      name: 'file',
+      container: elements.body,
+      isOpen: true,
+      pos: { x: 400, y: 0 },
+      content: nav => {
+        [
+          {
+            name: 'fileName',
+          },
+        ].forEach(input => {
+          settings.inputs[input.name] = new Input({
+            inputName: input.name,
+            container: nav.contentWrapper,
+            // update: ()=> settings.currentPath.updateSvgStyle()
+          })
+        })
+        nav.addButtons([{
+          btnText: 'S',
+          action: ()=> {
+            elements.artboard.saveSvg()
+          }
+        }])
+        new Upload({ container: nav.contentWrapper })
+      }
+    }),
     main: new NavWindow({
       name: 'main',
       container: elements.body,
       isOpen: true,
       pos: { x: 400, y: 0 },
-      // fill: 'transparent',
-      // stroke: null,
-      // strokeWidth: 10,
-      // smoothing: 0.2,
       content: nav => {
         [
           {

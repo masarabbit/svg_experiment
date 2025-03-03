@@ -23,6 +23,7 @@ class Artboard extends PageObject {
       ...props,
     })
     this.addToPage()
+    elements.artboard = this
 
     this.display = this.el.querySelector('.display')
     this.output = this.el.querySelector('.output-svg')
@@ -83,6 +84,21 @@ class Artboard extends PageObject {
     // this.w = Math.abs(defPos.x - x)
     // this.h = Math.abs(defPos.y - y)
     // this.setStyles()
+  }
+  saveSvg() {
+    const { nav: { w, h }, output: { innerHTML } } = this
+    const fileConfig = 'xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"'
+    const fileContent = `
+      <svg width="${w}" height="${h}" viewport="0 0 ${w} ${h}" ${fileConfig}>
+        ${innerHTML}
+      </svg>
+    `
+    const data = new Blob([fileContent], { type: 'text/rtf' })
+    const link = Object.assign(document.createElement('a'), {
+      download: `${settings.fileName || 'untitled'}_${new Date().getTime()}.svg`,
+      href: window.URL.createObjectURL(data)
+    })
+    link.click()
   }
 }
 

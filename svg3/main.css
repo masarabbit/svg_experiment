@@ -113,17 +113,21 @@ textarea {
   border-color:rgb(115, 255, 1);
 }
 
-button {
+
+.btn {
   pointer-events: auto;
   background-color: transparent;
   border: 1px solid rgb(0, 0, 0);
   color: rgb(0, 0, 0);
   height: 24px;
   width: 24px;
-  text-align: center;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-button:hover {
+.btn:hover {
   opacity: 0.5;
 }
 
@@ -207,6 +211,7 @@ svg:hover {
   width: 12px;
   height: 6px;
   padding: 0;
+  border: 1px solid #000;
 }
 
 .arrow {
@@ -261,6 +266,7 @@ svg {
   border: 1px solid #000;
   width: 20px;
   height: 20px;
+  z-index: 10;
 }
 
 
@@ -279,7 +285,7 @@ input {
 .input-wrap {
   display: flex;
   flex-direction: column;
-  margin: 0 8px;
+  margin: 4px 8px;
 }
 
 .color-input-wrap {
@@ -342,4 +348,40 @@ input.no {
 
 input[type=color] { 
   display: none; 
+}
+
+/* upload */
+
+/* perhaps streamline class by using same class*/
+/* label.upload {
+  pointer-events: auto;
+  background-color: transparent;
+  border: 1px solid rgb(0, 0, 0);
+  color: rgb(0, 0, 0);
+  height: 24px;
+  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin: 4px;
+}
+
+label.upload:hover {
+  opacity: 0.5;
+} */
+
+.upload-wrapper {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+}
+
+.upload-wrapper > div {
+  margin: 0 4px;
+  color: #000;
+}
+
+.d-none {
+  display: none;
 }

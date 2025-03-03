@@ -6,6 +6,25 @@ const elements = {
   modeIndicator: document.querySelector('.mode-indicator'),
   windows: {},
   saveDataName: 'svg-window-pos',
+  uploadedFile: null,
+
+  //* presetting for testing purpose
+  uploadData: {
+    svgs: [
+      {
+        w: 418,
+        h: 383
+      }
+    ],
+    paths: [
+      {
+        d: "M 252 107 L 150 180 L 310 269 L 340 151",
+        fill: '#55d93a',
+        stroke: '#91938a',
+        strokeWidth: 2
+      }
+    ]
+  },
   saveData() {
     const obj = {}
     Object.keys(this.windows).forEach(key => {
@@ -26,11 +45,11 @@ const elements = {
         })
         this.windows[key].setUp()
 
-        ;['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].forEach(prop => {
-          settings.inputs[prop].value = data[key][prop]
-          settings[prop] = data[key][prop]
-          if (prop.includes('Hex')) settings.inputs[prop].updateColor()
-        })
+          ;['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].forEach(prop => {
+            settings.inputs[prop].value = data[key][prop]
+            settings[prop] = data[key][prop]
+            if (prop.includes('Hex')) settings.inputs[prop].updateColor()
+          })
       })
 
     }
@@ -45,6 +64,7 @@ const settings = {
   paths: [],
   idCount: 0,
   drawMode: 'plot',
+  fileName: 'svg',
   recordState() {
     console.log('record')
   },

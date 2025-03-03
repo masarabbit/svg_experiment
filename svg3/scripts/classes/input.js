@@ -90,7 +90,6 @@ class Input {
   }
 }
 
-
 class Button {
   constructor(props) {
     Object.assign(this, {
@@ -106,8 +105,72 @@ class Button {
 }
 
 
+class Upload {
+  constructor(props) {
+    Object.assign(this, {
+      el: Object.assign(document.createElement('div'), {
+        className: 'upload-wrapper',
+        innerHTML: `
+          <input id="upload" class="d-none" type="file" single/>
+          <label for="upload" class="upload btn">U</label>
+          <div></div>
+        `
+      }),
+      ...props
+    })
+    this.container.appendChild(this.el)
+      ;['input', 'label', 'display'].forEach(key => this[key] = this.el.querySelector(`${key === 'display' ? 'div' : key}`))
+
+    this.outputBtn = new Button({
+      container: this.container,
+      className: 'd-none',
+      action: () => {
+        this.handleFiles(settings.uploadedFile)
+      }
+    })
+    this.el.addEventListener('change', () => {
+      settings.uploadedFile = this.input.files[0]
+      this.display.innerHTML = settings.uploadedFile.name
+      this.outputBtn.el.classList.remove('d-none')
+    })
+  }
+  handleFiles(file){
+    const reader = new FileReader()
+    reader.onload = function(e) {
+      const svgData = e.target.result
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgData, "image/svg+xml")
+      const svgTags = doc.getElementsByTagName("svg")
+      const pathTags = doc.getElementsByTagName("path")
+
+      console.log(pathTags)
+
+      settings.uploadData = {
+        svgs: Array.from(svgTags).map(s => {
+          return { 
+            w: s.width.baseVal.value,
+            h: s.height.baseVal.value
+          }
+        }),
+        paths: Array.from(pathTags).map(p => {
+          const { d, fill, stroke, 'stroke-width': strokeWidth } = p.attributes
+          return {
+            d: d.value,
+            fill: fill.value,
+            stroke: stroke.value,
+            strokeWidth: strokeWidth.value,
+          }
+        })
+      }
+    }
+    reader.readAsText(file)
+}
+}
+
+
 export {
   TextArea,
   Input,
   Button,
+  Upload
 }
