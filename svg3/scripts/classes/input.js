@@ -143,8 +143,6 @@ class Upload {
       const svgTags = doc.getElementsByTagName("svg")
       const pathTags = doc.getElementsByTagName("path")
 
-      console.log(pathTags)
-
       settings.uploadData = {
         svgs: Array.from(svgTags).map(s => {
           return { 
@@ -162,6 +160,7 @@ class Upload {
           }
         })
       }
+      console.log(settings.uploadData)
     }
     reader.readAsText(file)
 }

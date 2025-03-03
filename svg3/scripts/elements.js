@@ -6,25 +6,6 @@ const elements = {
   modeIndicator: document.querySelector('.mode-indicator'),
   windows: {},
   saveDataName: 'svg-window-pos',
-  uploadedFile: null,
-
-  //* presetting for testing purpose
-  uploadData: {
-    svgs: [
-      {
-        w: 418,
-        h: 383
-      }
-    ],
-    paths: [
-      {
-        d: "M 252 107 L 150 180 L 310 269 L 340 151",
-        fill: '#55d93a',
-        stroke: '#91938a',
-        strokeWidth: 2
-      }
-    ]
-  },
   saveData() {
     const obj = {}
     Object.keys(this.windows).forEach(key => {
@@ -57,6 +38,26 @@ const elements = {
 }
 
 const settings = {
+  uploadedFile: null,
+  //* presetting for testing purpose
+  uploadData: {
+    svgs: [
+      {
+        w: 418,
+        h: 383
+      }
+    ],
+    paths: [
+      {
+        // d: "M 252 107 L 150 180 L 310 269 L 340 151",
+        // d: 'M 112 99 L 257 58 C 257 58, 329 50, 352 95 C 379 148, 353 180, 353 180 L 195 206',
+        d: 'M 249 89 L 154 157 C 154 157, 190 225, 231 235 C 272 245, 359 208, 359 208 L 316 140 L 249 89 Z',
+        fill: '#55d93a',
+        stroke: '#91938a',
+        strokeWidth: 2
+      }
+    ]
+  },
   paths: [],
   snap: 1,
   addNewPath: true,

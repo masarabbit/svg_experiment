@@ -175,11 +175,27 @@ function init() {
     })
   }
 
-
-
-
   settings.updateMode('plot')
   elements.readData()
+
+
+  //* testing SVG parser
+
+  const path = settings.uploadData.paths[0].d
+
+  const convertPathToArr = path => {
+    return path.split(' ').reduce((acc, item) => {
+      const p = item.replaceAll(',','').trim()     
+      isNaN(+p)
+        ? acc.push({ letter: p, nodes: [] }) 
+        : acc[acc.length - 1].nodes.push(+p)
+      return acc
+    }, [])
+  }
+  console.log(path, convertPathToArr(path))
+
+  // TODO need to check if array can be used to create nodes
+    // TODO > create array with mainNodes first, then add curveNodes?
 
 }
 
