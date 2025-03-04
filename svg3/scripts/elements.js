@@ -1,4 +1,5 @@
 // import { NavWindow } from './classes/nav.js'
+import { Path, Point, LeftNode, RightNode } from './classes/path.js'
 
 const elements = {
   body: document.querySelector('body'),
@@ -40,22 +41,37 @@ const settings = {
   uploadedFile: null,
   //* presetting for testing purpose
   uploadData: {
-    svgs: [
-      {
-        w: 418,
-        h: 383
-      }
-    ],
+    svg: {
+      w: 418,
+      h: 300
+    },
     paths: [
       {
         // d: "M 252 107 L 150 180 L 310 269 L 340 151",
         // d: 'M 112 99 L 257 58 C 257 58, 329 50, 352 95 C 379 148, 353 180, 353 180 L 195 206',
         d: 'M 249 89 L 154 157 C 154 157, 190 225, 231 235 C 272 245, 359 208, 359 208 L 316 140 L 249 89 Z',
-        fill: '#55d93a',
+        fill: '#000888',
         stroke: '#91938a',
         strokeWidth: 2
+      },
+      {
+        d: 'M 112 99 L 257 58 C 257 58, 329 50, 352 95 C 379 148, 353 180, 353 180 L 195 206',
+        fill: '#890077',
+        stroke: '#91938a',
+        strokeWidth: 4
       }
-    ]
+    ],
+    get convertedPaths() {
+      return this.paths.map(p => {
+        return p.d.split(' ').reduce((acc, item) => {
+          const p = item.replaceAll(',','').trim()     
+          isNaN(+p)
+            ? acc.push({ letter: p, nodes: [] }) 
+            : acc[acc.length - 1].nodes.push(+p)
+          return acc
+        }, [])
+      })
+    } 
   },
   paths: [],
   snap: 1,
@@ -76,6 +92,46 @@ const settings = {
     const moveAction = mode === 'move' ? 'add' : 'remove'
     document.querySelector('.output-svg').classList[moveAction]('touch')
     document.querySelector('.display').classList[moveAction]('freeze')
+  },
+  addMpoint(point) {
+    new Path({ artboard: elements.artboard }, { x: point.nodes[0], y: point.nodes[1] })
+  },
+  addLpoint(point) {
+    new Point({ letter: 'L', path: this.currentPath, pos: { x: point.nodes[0], y: point.nodes[1] }})
+  },
+  addCpoint(point) {
+    const newPoint = new Point({ letter: 'C', path: this.currentPath, pos: { x: point.nodes[4], y: point.nodes[5] }})
+    newPoint.leftNode = new LeftNode({
+      path: newPoint.path,
+      point: newPoint,
+      container: newPoint.path.artboard.display,
+      pos: { x: point.nodes[2], y: point.nodes[3] },
+    })
+    if (newPoint.prevPoint) {
+      newPoint.prevPoint.rightNode = new RightNode({
+        path: newPoint.path,
+        point: newPoint.prevPoint,
+        container: newPoint.path.artboard.display,
+        pos: { x: point.nodes[0], y: point.nodes[1] },
+      })
+    }
+  },
+  addZpoint() {
+    new Point({ letter: 'Z', path: this.currentPath })
+  },
+  outputSvg() {
+    ;['w', 'h'].forEach(prop => elements.artboard.nav[prop] = this.uploadData.svg[prop])
+    elements.artboard.nav.setStyles()
+
+    this.uploadData.convertedPaths.forEach((path, i) => {
+      ;['fill', 'stroke', 'strokeWidth'].forEach(prop => {
+        this.inputs[prop].value = this.uploadData.paths[i][prop]
+        this[prop] = this.uploadData.paths[i][prop]
+        if (['fill', 'stroke'].includes(prop)) this.inputs[prop].updateColor()
+      })
+      path.forEach(p => this[`add${p.letter}point`](p))
+      this.currentPath.updatePath()
+    })
   },
   // svg styling
   fill: 'transparent',

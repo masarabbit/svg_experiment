@@ -3,17 +3,15 @@ import { NavWindow } from './classes/nav.js'
 import { TextArea, Input, Upload } from './classes/input.js'
 // import { mouse } from './utils.js'
 import { Artboard } from './classes/Artboard.js'
-// import { Path } from './classes/path.js'
 
 
 // TODO change svg layer ordering (this would involve sorting the points array)
-// TODO add SVG parser 
-   // TODO > enable reading an svg file to output shape
+
 
 // TODO make visualisation of mode clearer
 // TODO add button icons
 // TODO add delete path
-
+// TODO add outputSvg button
 
 function init() {
   elements.windows = {
@@ -181,18 +179,14 @@ function init() {
 
   //* testing SVG parser
 
-  const path = settings.uploadData.paths[0].d
 
-  const convertPathToArr = path => {
-    return path.split(' ').reduce((acc, item) => {
-      const p = item.replaceAll(',','').trim()     
-      isNaN(+p)
-        ? acc.push({ letter: p, nodes: [] }) 
-        : acc[acc.length - 1].nodes.push(+p)
-      return acc
-    }, [])
-  }
-  console.log(path, convertPathToArr(path))
+  settings.outputSvg()
+
+
+
+
+
+  // console.log(path, convertedPath, elements)
 
   // TODO need to check if array can be used to create nodes
     // TODO > create array with mainNodes first, then add curveNodes?

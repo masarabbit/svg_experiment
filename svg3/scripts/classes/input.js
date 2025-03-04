@@ -144,12 +144,10 @@ class Upload {
       const pathTags = doc.getElementsByTagName("path")
 
       settings.uploadData = {
-        svgs: Array.from(svgTags).map(s => {
-          return { 
-            w: s.width.baseVal.value,
-            h: s.height.baseVal.value
-          }
-        }),
+        svg: { 
+          w: svgTags[0].width.baseVal.value,
+          h: svgTags[0].height.baseVal.value
+        },
         paths: Array.from(pathTags).map(p => {
           const { d, fill, stroke, 'stroke-width': strokeWidth } = p.attributes
           return {

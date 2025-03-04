@@ -32,11 +32,10 @@ class Node extends PageObject {
 class CurveNode extends Node {
   constructor(props) {
     super({
-      isCurveNode: true,
-      pos: { x: 0, y: 0 },
+      pos: props.pos,
       ...props
     })
-    this.setDefaultPos()
+    if (!this.pos) this.setDefaultPos()
     this.setUp()
   }
   get prevPoint() {
@@ -239,7 +238,6 @@ class Point {
     Object.assign(this, {
       letter: props.letter,
       pos: props.pos,
-      isCurve: false,
       ...props
     })
     this.path.points.push(this)
@@ -288,7 +286,6 @@ class Point {
   }
   addLeftNode() {
     this.letter = 'C'
-    this.isCurve = true
     this.leftNode = new LeftNode({
       path: this.path,
       point: this,
@@ -297,7 +294,6 @@ class Point {
   }
   addRightNode() {
     this.nextPoint.letter = 'C'
-    this.nextPoint.isCurve = true
     this.rightNode = new RightNode({
       path: this.path,
       point: this,
@@ -404,5 +400,8 @@ class Path extends PageObject {
 
 
 export {
-  Path
+  Path,
+  Point,
+  LeftNode,
+  RightNode
 }
