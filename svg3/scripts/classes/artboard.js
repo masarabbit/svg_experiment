@@ -13,10 +13,10 @@ class Artboard extends PageObject {
           <div class="output">
             <svg class="output-svg" width="100%" height="100%"></svg>
           </div>
-          <div class="display"></div>
           <div class="line-output">
             <svg class="line-output-svg" width="100%" height="100%" fill="transparent"></svg>
           </div>
+          <div class="display"></div>
           <div class="resize-handle"></div>
         `
       }),

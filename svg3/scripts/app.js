@@ -12,6 +12,8 @@ import { Artboard } from './classes/Artboard.js'
 // TODO add button icons
 // TODO add delete path
 // TODO add outputSvg button
+// TODO add hide nodes option
+// TODO possibly add additional path output to show 'outline' in the line-output
 
 function init() {
   elements.windows = {
