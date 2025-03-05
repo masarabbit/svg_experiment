@@ -14,6 +14,7 @@ import { Artboard } from './classes/Artboard.js'
 // TODO add outputSvg button
 // TODO add hide nodes option
 // TODO possibly add additional path output to show 'outline' in the line-output
+// TODO add ways to enlarge / shrink svg  (should be able to do by multiplying the vectors)
 
 function init() {
   elements.windows = {

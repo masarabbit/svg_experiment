@@ -216,6 +216,10 @@ class MainNode extends Node {
     if (this.path) this.path.updatePath()
   }
   extraDragAction() {
+    if (['h', 'v'].includes(this.point.letter)) {
+      this.point.letter = 'L'
+    }
+
     this.path.updatePath()
     if (this.point === this.path.firstPoint && this.path.lastPoint?.leftNode) {
       this.path.lastPoint.leftNode.addXy(this.grabPos.a)
@@ -353,6 +357,14 @@ class Path extends PageObject {
       if (letter === 'Z') return 'Z'
 
       const { pos, xy1, xy2 } = n
+
+      //* dealing with h and v command
+      if (['h', 'v'].includes(letter)) {
+
+        // return `${letter} ${n.singlePos}`
+        return `L ${xY(pos)}` //* automatically changing h and v to L so it can be moved easily
+      }
+
       return letter === 'C'
           ? `${letter} ${xY(xy1)}, ${xY(xy2)}, ${xY(pos)}`
           : `${letter} ${xY(pos)}`
