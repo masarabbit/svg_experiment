@@ -62,18 +62,18 @@ const settings = {
       //   strokeWidth: 4
       // }
     ],
-    get convertedPaths() {
-      return this.paths.map(p => {
-        return p.d.split(' ').reduce((acc, item) => {
-          const p = item.replaceAll(',','').trim()     
-          isNaN(+p)
-            ? acc.push({ letter: p, nodes: [] }) 
-            : acc[acc.length - 1].nodes.push(+p)
-          return acc
-        }, [])
-      })
-    } 
   },
+  get convertedPaths() {
+    return this.uploadData.paths.map(p => {
+      return p.d.split(' ').reduce((acc, item) => {
+        const p = item.replaceAll(',','').trim()     
+        isNaN(+p)
+          ? acc.push({ letter: p, nodes: [] }) 
+          : acc[acc.length - 1].nodes.push(+p)
+        return acc
+      }, [])
+    })
+  }, 
   paths: [],
   snap: 1,
   addNewPath: true,
@@ -141,8 +141,9 @@ const settings = {
   outputSvg() {
     ;['w', 'h'].forEach(prop => elements.artboard.nav[prop] = this.uploadData.svg[prop])
     elements.artboard.nav.setStyles()
+    console.log(this.convertedPaths)
 
-    this.uploadData.convertedPaths.forEach((path, i) => {
+    this.convertedPaths.forEach((path, i) => {
       ;['fill', 'stroke', 'strokeWidth'].forEach(prop => {
         this.inputs[prop].value = this.uploadData.paths[i][prop]
         this[prop] = this.uploadData.paths[i][prop]

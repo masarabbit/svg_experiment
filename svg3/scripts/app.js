@@ -11,7 +11,6 @@ import { Artboard } from './classes/Artboard.js'
 // TODO make visualisation of mode clearer
 // TODO add button icons
 // TODO add delete path
-// TODO add outputSvg button
 // TODO add hide nodes option
 // TODO possibly add additional path output to show 'outline' in the line-output
 // TODO add ways to enlarge / shrink svg  (should be able to do by multiplying the vectors)
@@ -178,12 +177,6 @@ function init() {
 
   settings.updateMode('plot')
   elements.readData()
-
-
-  //* testing SVG parser
-
-
-  settings.outputSvg()
 
 
 

@@ -123,6 +123,7 @@ class Upload {
 
     this.outputBtn = new Button({
       container: this.container,
+      btnText: 'O',
       className: 'd-none',
       action: () => {
         this.handleFiles(settings.uploadedFile)
@@ -152,13 +153,14 @@ class Upload {
           const { d, fill, stroke, 'stroke-width': strokeWidth } = p.attributes
           return {
             d: d.value,
-            fill: fill.value,
-            stroke: stroke.value,
-            strokeWidth: strokeWidth.value,
+            fill: fill?.value,
+            stroke: stroke?.value,
+            strokeWidth: strokeWidth?.value,
           }
         })
       }
       console.log(settings.uploadData)
+      settings.outputSvg()
     }
     reader.readAsText(file)
 }
