@@ -2,7 +2,7 @@ import { elements, settings } from './elements.js'
 import { NavWindow } from './classes/nav.js'
 import { TextArea, Input, Upload } from './classes/input.js'
 // import { mouse } from './utils.js'
-import { Artboard } from './classes/Artboard.js'
+import { Artboard } from './classes/artboard.js'
 
 
 // TODO change svg layer ordering (this would involve sorting the points array)
