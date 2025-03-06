@@ -207,6 +207,7 @@ class MainNode extends Node {
       //   p.removeMainNode()
       //   p.removeCurveNodes()
       // })
+      this.path.remove()
       settings.paths = settings.paths.filter(p => p !== this.path)
       settings.addNewPath = true
     } else if (!this.path.points.some(p => p.letter === 'M')) {
@@ -220,12 +221,19 @@ class MainNode extends Node {
       this.point.letter = 'L'
     }
 
+    // syncing lastPoint with firstPoint
+    if (this.point === this.path.firstPoint && this.path.lastPoint) {
+      this.path.lastPoint.pos = {...this.point.pos}
+    }
+
     this.path.updatePath()
+
     if (this.point === this.path.firstPoint && this.path.lastPoint?.leftNode) {
-      this.path.lastPoint.leftNode.addXy(this.grabPos.a)
-      this.path.lastPoint.leftNode.setStyles()
-      this.point.rightNode.addXy(this.grabPos.a)
-      this.point.rightNode.setStyles()
+      ;[this.path.lastPoint.leftNode, this.point.rightNode].forEach(node=> {
+        node.addXy(this.grabPos.a)
+        node.setStyles()
+        node.handleLine.update()
+      })
     } else {
       ;['leftNode', 'rightNode'].forEach(node => {
         if (this.point[node]) {
@@ -262,7 +270,7 @@ class Point {
     return this.path.points.indexOf(this)
   }
   get prevPoint() {
-    if (this === this.path.firstPoint && this.path.lastPoint) return this.path.isLastPoint
+    if (this === this.path.firstPoint && this.path.lastPoint) return this.path.lastPoint
     return this.path.points?.[this.pointIndex - 1]
   }
   get nextPoint() {
@@ -344,7 +352,7 @@ class Path extends PageObject {
   closePath() {
     this.lastPoint = new Point({ 
       letter: 'L', 
-      pos: this.firstPoint.pos,
+      pos: {...this.firstPoint.pos},
       path: this,
       isLastPoint: true
     })
@@ -379,8 +387,7 @@ class Path extends PageObject {
   dragAction() {
     this.points.forEach(point => {
       if (point.letter === 'Z') return
-      // when we have last point, we should only move M once
-      if (!this.lastPoint || point.letter !== 'M') point.addXy(this.grabPos.a)
+      point.addXy(this.grabPos.a)
       if (point.mainNode) point.mainNode.setStyles()
       ;['leftNode', 'rightNode'].forEach(node => {
         if (point[node]) {

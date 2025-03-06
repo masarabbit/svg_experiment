@@ -136,7 +136,12 @@ const settings = {
     }
   },
   addZpoint() {
-    new Point({ letter: 'Z', path: this.currentPath })
+    const zPoint = new Point({ letter: 'Z', path: this.currentPath })
+    // add Last point
+    this.currentPath.lastPoint = zPoint.prevPoint
+    this.currentPath.lastPoint.isLastPoint = true
+    this.currentPath.lastPoint.mainNode.remove()
+    this.currentPath.lastPoint.mainNode = null
   },
   outputSvg() {
     ;['w', 'h'].forEach(prop => elements.artboard.nav[prop] = this.uploadData.svg[prop])
