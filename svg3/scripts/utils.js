@@ -23,7 +23,7 @@ const distanceBetween = (a, b) => Math.round(Math.sqrt(Math.pow((a.x - b.x), 2) 
 
 const mouse = {
   addEvents(target, event, action, array) {
-    array.forEach(a => target[`${event}EventListener`](a, action), { passive: false } )
+    array.forEach(a => target[`${event}EventListener`](a, action, { passive: false } ))
   },
   up(t, e, a) { this.addEvents(t, e, a, ['mouseup', 'touchend']) },
   move(t, e, a) { this.addEvents(t, e, a, ['mousemove', 'touchmove']) },

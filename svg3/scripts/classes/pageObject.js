@@ -42,7 +42,7 @@ class PageObject {
     this.pos.y -= xY.y
   }
   drag = (e, x, y) => {
-    e.preventDefault()
+    // e.preventDefault()
     if (e.type[0] === 'm') e.preventDefault()
     this.grabPos.a.x = this.grabPos.b.x - x
     this.grabPos.a.y = this.grabPos.b.y - y
