@@ -33,15 +33,17 @@ class Artboard extends PageObject {
     this.display.addEventListener('click', this.createOrUpdatePath)
 
     mouse.move(document, 'add', e => {
+      e.preventDefault()
       const { x, y } = this.pos(e)
       elements.indicator.innerHTML = `X${x} Y${y}` 
     })
 
     mouse.down(this.resizeHandle, 'add', e => {
+      e.preventDefault()
       this.canResize = true
       this.onGrab(e)
     })
-    mouse.up(this.resizeHandle, 'add',()=> this.canResize = false)
+    mouse.up(this.resizeHandle, 'add', ()=> this.canResize = false)
   }
   pos(e) {
     const { left, top } = this.display.getBoundingClientRect()
@@ -93,7 +95,7 @@ class Artboard extends PageObject {
         ${innerHTML}
       </svg>
     `
-    const data = new Blob([fileContent], { type: 'text/rtf' })
+    const data = new Blob([fileContent], { type: 'svg' })
     const link = Object.assign(document.createElement('a'), {
       download: `${settings.fileName || 'untitled'}_${new Date().getTime()}.svg`,
       href: window.URL.createObjectURL(data)

@@ -42,6 +42,7 @@ class PageObject {
     this.pos.y -= xY.y
   }
   drag = (e, x, y) => {
+    e.preventDefault()
     if (e.type[0] === 'm') e.preventDefault()
     this.grabPos.a.x = this.grabPos.b.x - x
     this.grabPos.a.y = this.grabPos.b.y - y
@@ -53,11 +54,13 @@ class PageObject {
     this.setStyles()
   }
   onGrab = e => {
+    e.preventDefault()
     this.grabPos.b = this.touchPos(e)
     mouse.up(document, 'add', this.onLetGo)
     mouse.move(document, 'add', this.onDrag)
   }
   onDrag = e => {
+    e.preventDefault()
     const { x, y } = this.touchPos(e)
     this.canResize
       ? this.resizeBox(e)
