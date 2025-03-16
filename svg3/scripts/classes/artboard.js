@@ -8,7 +8,7 @@ class Canvas extends PageObject {
   constructor(props) {
     super({
       el: Object.assign(document.createElement('canvas'), {
-        className: props.className,
+        className: 'artboard-canvas',
       }),
       colors: [],
       ...props,
@@ -58,7 +58,7 @@ class Canvas extends PageObject {
   }
   paintCanvas() {
     this.extractColors()
-    this.ctx.fillStyle = '#fff'
+    this.clearCanvas()
     this.ctx.fillRect(0, 0, this.w, this.h)
     const { d } = this
     this.colors.forEach((c, i) => {
@@ -154,8 +154,7 @@ class Artboard extends PageObject {
     this.nav.h = Math.abs(pos.y - y)
     this.nav.setStyles()
     this.canvas.resizeCanvas()
-    ;['column', 'row'].forEach(n => settings.inputs[n].value = this.canvas[n])
-    if (settings.shouldPixelate) elements.artboard.pixelate()
+    this.updatePixelation()
     // this.w = Math.abs(defPos.x - x)
     // this.h = Math.abs(defPos.y - y)
     // this.setStyles()
@@ -175,15 +174,22 @@ class Artboard extends PageObject {
     })
     link.click()
   }
+  updatePixelation() {
+    ;['column', 'row'].forEach(n => settings.inputs[n].value = this.canvas[n])
+    if (settings.shouldPixelate) elements.artboard.pixelate()
+  }
   pixelate() {
+    elements.artboard.output.classList.add('d-none') 
     elements.artboard.canvas.clearCanvas()   
     settings.paths.forEach(p => {
-      const { d, svgStyle: { stroke, strokeWidth } } = p
+      const { d, svgStyle: { stroke, strokeWidth, fill } } = p
       const { ctx } = elements.artboard.canvas
       const path = new Path2D(d)
       ctx.strokeStyle = stroke
       ctx.lineWidth = strokeWidth
       ctx.stroke(path)
+      ctx.fillStyle = fill
+      ctx.fill(path)
     })
     elements.artboard.canvas.paintCanvas()      
   }

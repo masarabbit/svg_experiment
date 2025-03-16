@@ -176,7 +176,8 @@ function init() {
           action: ()=> {
             settings.shouldPixelate = !settings.shouldPixelate     
             if (!settings.shouldPixelate) {
-              elements.artboard.canvas.clearCanvas()   
+              elements.artboard.canvas.clearCanvas()  
+              elements.artboard.output.classList.remove('d-none') 
             } else{
               elements.artboard.pixelate()
             }
