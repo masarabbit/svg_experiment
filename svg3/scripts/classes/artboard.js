@@ -1,8 +1,78 @@
 import PageObject from './pageObject.js'
 import { elements, settings } from '../elements.js'
 import { Path } from '../classes/path.js'
-import { mouse } from '../utils.js'
+import { mouse, hex, rgbToHex, nearestN } from '../utils.js'
 
+
+class Canvas extends PageObject {
+  constructor(props) {
+    super({
+      el: Object.assign(document.createElement('canvas'), {
+        className: props.className,
+      }),
+      colors: [],
+      ...props,
+    })
+    this.nav.contentWrapper.appendChild(this.el)
+    this.ctx = this.el.getContext('2d', { willReadFrequently: true })
+    setTimeout(()=> this.resizeCanvas())
+  }
+  get d() {
+    return settings.strokeWidth
+  }
+  get w() {
+    return Math.round(this.nav.contentWrapper.getBoundingClientRect().width)
+  }
+  get h() {
+    return Math.round(this.nav.contentWrapper.getBoundingClientRect().height)
+  }
+  get column() {
+    return Math.round(this.w / this.d) 
+  }
+  get row() {
+    return Math.round(this.h / this.d) 
+  }
+  resizeCanvas() {
+    this.el.setAttribute('width', this.w)
+    this.el.setAttribute('height', this.h)
+  }
+  extractColors() {
+    this.colors.length = 0
+    const { d } = this  
+    const w = this.column
+    const h = this.row
+
+    const offset = Math.floor(d / 2)
+    for (let i = 0; i < w * h; i++) {
+      const x = i % w * d
+      const y = Math.floor(i / w) * d
+      const c = this.ctx.getImageData(x + offset, y + offset, 1, 1).data //offset
+      // this thing included here to prevent rendering black instead of transparent
+      c[3] === 0
+        ? this.colors.push('transparent')
+        : this.colors.push(hex(rgbToHex(c[0], c[1], c[2])))
+    }
+  }
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.w, this.h)
+  }
+  paintCanvas() {
+    this.extractColors()
+    this.ctx.fillStyle = '#fff'
+    this.ctx.fillRect(0, 0, this.w, this.h)
+    const { d } = this
+    this.colors.forEach((c, i) => {
+      this.ctx.fillStyle = c || 'transparent'
+      this.ctx.fillRect(this.calcX(i) * d, this.calcY(i) * d, d, d)
+    })
+  }
+  calcX(cell) {
+    return cell % this.column
+  }
+  calcY(cell) {
+    return Math.floor(cell / this.column)
+  }
+}
 
 class Artboard extends PageObject {
   constructor(props) {
@@ -29,6 +99,7 @@ class Artboard extends PageObject {
     this.output = this.el.querySelector('.output-svg')
     this.lineOutput = this.el.querySelector('.line-output-svg')
     this.resizeHandle = this.el.querySelector('.resize-handle')
+    this.canvas = new Canvas({ nav: this.nav })
 
     this.display.addEventListener('click', this.createOrUpdatePath)
 
@@ -82,7 +153,9 @@ class Artboard extends PageObject {
     this.nav.w = Math.abs(pos.x - x)
     this.nav.h = Math.abs(pos.y - y)
     this.nav.setStyles()
-
+    this.canvas.resizeCanvas()
+    ;['column', 'row'].forEach(n => settings.inputs[n].value = this.canvas[n])
+    if (settings.shouldPixelate) elements.artboard.pixelate()
     // this.w = Math.abs(defPos.x - x)
     // this.h = Math.abs(defPos.y - y)
     // this.setStyles()
@@ -100,6 +173,37 @@ class Artboard extends PageObject {
       download: `${settings.fileName || 'untitled'}_${new Date().getTime()}.svg`,
       href: window.URL.createObjectURL(data)
     })
+    link.click()
+  }
+  pixelate() {
+    elements.artboard.canvas.clearCanvas()   
+    settings.paths.forEach(p => {
+      const { d, svgStyle: { stroke, strokeWidth } } = p
+      const { ctx } = elements.artboard.canvas
+      const path = new Path2D(d)
+      ctx.strokeStyle = stroke
+      ctx.lineWidth = strokeWidth
+      ctx.stroke(path)
+    })
+    elements.artboard.canvas.paintCanvas()      
+  }
+  roundBoardSize() {
+    const { d } = this.canvas
+    this.nav.w = nearestN(this.nav.w, d)
+    this.nav.h = nearestN(this.nav.h, d)
+    this.nav.setStyles()
+    this.canvas.resizeCanvas()
+  }
+  downloadImage = () => {
+    const { d, column, row } = this.canvas
+    this.roundBoardSize()
+    settings.shouldPixelate = true
+    this.pixelate()
+
+    const link = document.createElement('a')
+
+    link.download = `svg_d[${d}]col[${column}]row[${row}]${new Date().getTime()}.png`
+    link.href = this.canvas.el.toDataURL()
     link.click()
   }
 }

@@ -385,3 +385,8 @@ label.upload:hover {
 .d-none {
   display: none;
 }
+
+canvas {
+  position: absolute;
+  pointer-events: none;
+}

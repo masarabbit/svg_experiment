@@ -78,7 +78,6 @@ const settings = {
   snap: 1,
   addNewPath: true,
   currentPath: null,
-  paths: [],
   idCount: 0,
   drawMode: 'plot',
   fileName: 'svg',

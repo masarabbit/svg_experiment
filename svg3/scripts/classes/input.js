@@ -85,7 +85,7 @@ class Input {
       settings[this.inputName] = e.target.value
       if (['fill', 'fillHex', 'stroke', 'strokeHex'].includes(this.inputName)) this.updateColor()
       if (settings.currentPath) settings.currentPath.updateSvgStyle()
-      if (this.update) this.update() 
+      if (this.update) this.update(e) 
     })
   }
 }

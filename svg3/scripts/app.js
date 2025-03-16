@@ -171,8 +171,56 @@ function init() {
             settings.updateMode('move')
           }
         },
+        {
+          btnText: 'pixellate',
+          action: ()=> {
+            settings.shouldPixelate = !settings.shouldPixelate     
+            if (!settings.shouldPixelate) {
+              elements.artboard.canvas.clearCanvas()   
+            } else{
+              elements.artboard.pixelate()
+            }
+          }
+        },
+        {
+          btnText: 'download',
+          action: ()=> {
+            elements.artboard.downloadImage()
+          }
+        },
       ])
-    })
+    }),
+    size: new NavWindow({
+      name: 'artboard size',
+      container: elements.body,
+      isOpen: true,
+      pos: { x: 400, y: 0 },
+      content: nav => {
+        [
+          {
+            name: 'column',
+          },
+          {
+            name: 'row',
+          },
+        ].forEach(input => {
+          settings.inputs[input.name] = new Input({
+            inputName: input.name,
+            container: nav.contentWrapper,
+            isNum: true,
+            className: 'no',
+            update: e => {
+              elements.artboard.nav[{
+                column: 'w',
+                row: 'h'
+              }[input.name]] = e.target.value
+              elements.artboard.roundBoardSize()
+            }
+          })
+          settings.inputs[input.name].value = elements.artboard.canvas[input.name]
+        })
+      }
+    }),
   }
 
   settings.updateMode('plot')

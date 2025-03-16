@@ -36,6 +36,14 @@ const roundedClient = (e, type) => Math.round(e.type[0] === 'm' ? e[`client${typ
 
 const xY = pos => `${pos.x} ${pos.y}`
 
+const rgbToHex = (r, g, b) => {
+  if (r > 255 || g > 255 || b > 255)
+    throw 'Invalid color component'  
+  return ((r << 16) | (g << 8) | b).toString(16)
+}
+
+const hex = rgb => '#' + ('000000' + rgb).slice(-6)
+
 export {
   nearestN,
   isNum,
@@ -47,5 +55,7 @@ export {
   degToRad,
   radToDeg,
   distanceBetween,
-  kebabToCamelCase
+  kebabToCamelCase,
+  hex,
+  rgbToHex
 }

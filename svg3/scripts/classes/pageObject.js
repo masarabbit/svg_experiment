@@ -5,6 +5,7 @@ class PageObject {
   constructor(props) {
     Object.assign(this, {
       grabPos: { a: { x: 0, y: 0 }, b: { x: 0, y: 0 } },
+      // pos: { x: 0, y: 0 },
       ...props,
     })
   }

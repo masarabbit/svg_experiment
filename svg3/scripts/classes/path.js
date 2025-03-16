@@ -1,5 +1,5 @@
 import PageObject from './pageObject.js';
-import { settings } from '../elements.js';
+import { settings, elements } from '../elements.js';
 import { xY, kebabToCamelCase, mouse } from '../utils.js'
 
 class Node extends PageObject {
@@ -334,6 +334,7 @@ class Path extends PageObject {
     this.addToPage()
     this.addPoint('M', pos)
     this.addDragEvent()
+    settings.paths.push(this)
     settings.currentPath = this
     this.el.addEventListener('click', ()=> settings.currentPath = this)
   }
@@ -368,11 +369,9 @@ class Path extends PageObject {
 
       //* dealing with h and v command
       if (['h', 'v'].includes(letter)) {
-
         // return `${letter} ${n.singlePos}`
         return `L ${xY(pos)}` //* automatically changing h and v to L so it can be moved easily
       }
-
       return letter === 'C'
           ? `${letter} ${xY(xy1)}, ${xY(xy2)}, ${xY(pos)}`
           : `${letter} ${xY(pos)}`
@@ -383,6 +382,8 @@ class Path extends PageObject {
       this.el.setAttribute(key, this.svgStyle[kebabToCamelCase(key)])
     })
     this.el.setAttribute('d', newPath)
+    this.d = newPath
+    if (settings.shouldPixelate) elements.artboard.pixelate()
   }
   dragAction() {
     this.points.forEach(point => {
