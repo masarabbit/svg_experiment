@@ -387,6 +387,10 @@ label.upload:hover {
   display: none;
 }
 
+.hide {
+  opacity: 0;
+}
+
 canvas {
   position: absolute;
   pointer-events: none;

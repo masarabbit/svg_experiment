@@ -179,7 +179,7 @@ class Artboard extends PageObject {
     if (settings.shouldPixelate) elements.artboard.pixelate()
   }
   pixelate() {
-    elements.artboard.output.classList.add('d-none') 
+    elements.artboard.output.classList.add('hide') 
     elements.artboard.canvas.clearCanvas()   
     settings.paths.forEach(p => {
       const { d, svgStyle: { stroke, strokeWidth, fill } } = p
