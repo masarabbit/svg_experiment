@@ -5,10 +5,12 @@ class TextArea {
   constructor(props) {
     Object.assign(this, {
       el: Object.assign(document.createElement('div'), {
-        innerHTML: `<textarea className="${props.className || ''}" spellcheck="false" />`
+        innerHTML: `<textarea className="${
+          props.className || ''
+        }" spellcheck="false" />`,
       }),
       inputName: props.inputName || props.className,
-      ...props
+      ...props,
     })
     this.container.append(this.el)
     this.input = this.el.querySelector('textarea')
@@ -27,7 +29,7 @@ class TextArea {
   }
   copyText() {
     this.input.select()
-    this.input.setSelectionRange(0, 999999) // For mobile devices 
+    this.input.setSelectionRange(0, 999999) // For mobile devices
     document.execCommand('copy')
   }
 }
@@ -39,7 +41,9 @@ class Input {
       el: Object.assign(document.createElement('div'), {
         className: props.isColor ? 'color-input-wrap' : 'input-wrap',
         innerHTML: `
-          <label class="${props.isColor ? 'color-label' : ''}" for="${props.inputName}">
+          <label class="${props.isColor ? 'color-label' : ''}" for="${
+          props.inputName
+        }">
             ${props.isColor ? '' : label}
           </label>
           <input 
@@ -48,7 +52,7 @@ class Input {
             type="${props.isColor ? 'color' : 'text'}" 
             placeholder="${label}"
           >
-        `
+        `,
       }),
       ...props,
     })
@@ -75,18 +79,22 @@ class Input {
   }
   updateColor() {
     const { inputName } = this
-    const label = this.label || settings.inputs[inputName.replace('Hex', '')].label
+    const label =
+      this.label || settings.inputs[inputName.replace('Hex', '')].label
     label.style.backgroundColor = settings[inputName]
-    if (settings.inputs?.[inputName + 'Hex']) settings.inputs[inputName + 'Hex'].value = settings[inputName]
-    if (settings.inputs?.[inputName.replace('Hex', '')]) settings.inputs[inputName.replace('Hex', '')].value = settings[inputName]
+    if (settings.inputs?.[inputName + 'Hex'])
+      settings.inputs[inputName + 'Hex'].value = settings[inputName]
+    if (settings.inputs?.[inputName.replace('Hex', '')])
+      settings.inputs[inputName.replace('Hex', '')].value = settings[inputName]
   }
   addChangeListener() {
     this.input.addEventListener('change', e => {
       settings[this.inputName] = e.target.value
-      if (['fill', 'fillHex', 'stroke', 'strokeHex'].includes(this.inputName)) this.updateColor()
+      if (['fill', 'fillHex', 'stroke', 'strokeHex'].includes(this.inputName))
+        this.updateColor()
       if (this.inputName === 'strokeWidth') elements.artboard.updatePixelation()
       if (settings.currentPath) settings.currentPath.updateSvgStyle()
-      if (this.update) this.update(e) 
+      if (this.update) this.update(e)
     })
   }
 }
@@ -101,10 +109,9 @@ class Button {
       ...props,
     })
     props.container.appendChild(this.el)
-    this.el.addEventListener('click', ()=> this.action(this))
+    this.el.addEventListener('click', () => this.action(this))
   }
 }
-
 
 class Upload {
   constructor(props) {
@@ -115,12 +122,17 @@ class Upload {
           <input id="upload" class="d-none" type="file" single/>
           <label for="upload" class="upload btn">U</label>
           <div></div>
-        `
+        `,
       }),
-      ...props
+      ...props,
     })
     this.container.appendChild(this.el)
-      ;['input', 'label', 'display'].forEach(key => this[key] = this.el.querySelector(`${key === 'display' ? 'div' : key}`))
+    ;['input', 'label', 'display'].forEach(
+      key =>
+        (this[key] = this.el.querySelector(
+          `${key === 'display' ? 'div' : key}`
+        ))
+    )
 
     this.outputBtn = new Button({
       container: this.container,
@@ -128,7 +140,7 @@ class Upload {
       className: 'd-none',
       action: () => {
         this.handleFiles(settings.uploadedFile)
-      }
+      },
     })
     this.el.addEventListener('change', () => {
       settings.uploadedFile = this.input.files[0]
@@ -136,19 +148,19 @@ class Upload {
       this.outputBtn.el.classList.remove('d-none')
     })
   }
-  handleFiles(file){
+  handleFiles(file) {
     const reader = new FileReader()
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       const svgData = e.target.result
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(svgData, "image/svg+xml")
-      const svgTags = doc.getElementsByTagName("svg")
-      const pathTags = doc.getElementsByTagName("path")
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(svgData, 'image/svg+xml')
+      const svgTags = doc.getElementsByTagName('svg')
+      const pathTags = doc.getElementsByTagName('path')
 
       settings.uploadData = {
-        svg: { 
+        svg: {
           w: svgTags[0].width.baseVal.value,
-          h: svgTags[0].height.baseVal.value
+          h: svgTags[0].height.baseVal.value,
         },
         paths: Array.from(pathTags).map(p => {
           const { d, fill, stroke, 'stroke-width': strokeWidth } = p.attributes
@@ -158,19 +170,13 @@ class Upload {
             stroke: stroke?.value,
             strokeWidth: strokeWidth?.value,
           }
-        })
+        }),
       }
       console.log(settings.uploadData)
       settings.outputSvg()
     }
     reader.readAsText(file)
-}
+  }
 }
 
-
-export {
-  TextArea,
-  Input,
-  Button,
-  Upload
-}
+export { TextArea, Input, Button, Upload }

@@ -1,14 +1,15 @@
-import PageObject from './pageObject.js';
-import { settings, elements } from '../elements.js';
+import PageObject from './pageObject.js'
+import { settings, elements } from '../elements.js'
 import { xY, kebabToCamelCase, mouse } from '../utils.js'
 
 class Node extends PageObject {
   constructor(props) {
     super({
-      el: Object.assign(document.createElement('div'), 
-      { className: `node ${props.className}` }),
+      el: Object.assign(document.createElement('div'), {
+        className: `node ${props.className}`,
+      }),
       point: props.point,
-      ...props
+      ...props,
     })
   }
   setUp() {
@@ -18,11 +19,11 @@ class Node extends PageObject {
   }
   addDragEvent() {
     mouse.down(this.el, 'add', this.onGrab)
-    mouse.enter(this.el,'add', ()=> {
+    mouse.enter(this.el, 'add', () => {
       if (settings.drawMode !== 'plot') return
       settings.drawMode = 'drag'
     })
-    mouse.leave(this.el,'add', ()=> {
+    mouse.leave(this.el, 'add', () => {
       if (settings.drawMode !== 'drag') return
       settings.drawMode = 'plot'
     })
@@ -33,17 +34,19 @@ class CurveNode extends Node {
   constructor(props) {
     super({
       pos: props.pos,
-      ...props
+      ...props,
     })
     if (!this.pos) this.setDefaultPos()
     this.setUp()
   }
   get prevPoint() {
-    if (this.point === this.path.firstPoint && this.path.lastPoint) return this.path.lastPoint.prevPoint.pos
+    if (this.point === this.path.firstPoint && this.path.lastPoint)
+      return this.path.lastPoint.prevPoint.pos
     return this.point.prevPoint?.pos || this.point.pos
   }
   get nextPoint() {
-    if (this.point === this.path?.lastPoint) return this.path.firstPoint.nextPoint.pos
+    if (this.point === this.path?.lastPoint)
+      return this.path.firstPoint.nextPoint.pos
     return this.point.nextPoint?.pos || this.point.pos
   }
   get cNodeLine() {
@@ -51,7 +54,7 @@ class CurveNode extends Node {
     const lengthY = this.nextPoint.y - this.prevPoint.y
     return {
       length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
-      angle: Math.atan2(lengthY, lengthX)
+      angle: Math.atan2(lengthY, lengthX),
     }
   }
   get lineLength() {
@@ -60,23 +63,30 @@ class CurveNode extends Node {
   get lineAngle() {
     return this.cNodeLine.angle + this.angleOffset
   }
-  setDefaultPos() {  
-    const x = this.point.pos.x + Math.cos(this.lineAngle) * this.lineLength || this.point.pos.x 
-    const y = this.point.pos.y + Math.sin(this.lineAngle) * this.lineLength || this.point.pos.y
-  
+  setDefaultPos() {
+    const x =
+      this.point.pos.x + Math.cos(this.lineAngle) * this.lineLength ||
+      this.point.pos.x
+    const y =
+      this.point.pos.y + Math.sin(this.lineAngle) * this.lineLength ||
+      this.point.pos.y
+
     this.pos = {
       x: Math.round(x),
-      y: Math.round(y) 
+      y: Math.round(y),
     }
   }
   get angleToAxis() {
-    return Math.atan2(this.pos.y - this.axis.pos.y, this.pos.x - this.axis.pos.x) + Math.PI
-  } 
+    return (
+      Math.atan2(this.pos.y - this.axis.pos.y, this.pos.x - this.axis.pos.x) +
+      Math.PI
+    )
+  }
   getOffsetPos() {
     const distance = this.pair.distanceBetween(this.axis.pos)
     return {
-      x: Math.round(this.axis.pos.x + (distance * Math.cos(this.angleToAxis))),
-      y: Math.round(this.axis.pos.y + (distance * Math.sin(this.angleToAxis)))
+      x: Math.round(this.axis.pos.x + distance * Math.cos(this.angleToAxis)),
+      y: Math.round(this.axis.pos.y + distance * Math.sin(this.angleToAxis)),
     }
   }
   extraDragAction() {
@@ -93,9 +103,9 @@ class CurveNode extends Node {
 class NodeLine {
   constructor(props) {
     Object.assign(this, {
-      el: document.createElementNS('http://www.w3.org/2000/svg','line'),
+      el: document.createElementNS('http://www.w3.org/2000/svg', 'line'),
       container: props.point.path.artboard.lineOutput,
-      ...props
+      ...props,
     })
     this.container.appendChild(this.el)
     this.update()
@@ -115,7 +125,6 @@ class NodeLine {
   }
 }
 
-
 class LeftNode extends CurveNode {
   constructor(props) {
     super({
@@ -127,11 +136,12 @@ class LeftNode extends CurveNode {
     this.handleLine = new NodeLine({
       point: this.point,
       cNode: this,
-      color: 'orange'
+      color: 'orange',
     })
   }
   get pair() {
-    if (this.path.lastPoint === this.point) return this.path.firstPoint.rightNode
+    if (this.path.lastPoint === this.point)
+      return this.path.firstPoint.rightNode
     return this.point.rightNode
   }
 }
@@ -147,11 +157,12 @@ class RightNode extends CurveNode {
     this.handleLine = new NodeLine({
       point: this.point,
       cNode: this,
-      color: 'red'
+      color: 'red',
     })
   }
   get pair() {
-    if (this.path.firstPoint === this.point && this.path.lastPoint) return this.path.lastPoint.leftNode
+    if (this.path.firstPoint === this.point && this.path.lastPoint)
+      return this.path.lastPoint.leftNode
     return this.point.leftNode
   }
 }
@@ -166,7 +177,7 @@ class MainNode extends Node {
     return this.point.pos
   }
   addClickEvent() {
-    this.el.addEventListener('click', ()=> {
+    this.el.addEventListener('click', () => {
       settings.currentPath = this.path
       if (settings.drawMode === 'curve') this.addCurve()
       if (settings.drawMode === 'remove-curve') this.removeCurve()
@@ -181,10 +192,15 @@ class MainNode extends Node {
     }
   }
   addCurve() {
-    if (this.point === this.path.firstPoint && this.path.lastPoint && !this.path.lastPoint.leftNode) {
+    if (
+      this.point === this.path.firstPoint &&
+      this.path.lastPoint &&
+      !this.path.lastPoint.leftNode
+    ) {
       this.path.lastPoint.addLeftNode()
-    } else if(this.point.prevPoint && !this.point.leftNode) this.point.addLeftNode()
-    if(this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
+    } else if (this.point.prevPoint && !this.point.leftNode)
+      this.point.addLeftNode()
+    if (this.point.nextPoint && !this.point.rightNode) this.point.addRightNode()
     this.path.updatePath()
   }
   deletePoint() {
@@ -193,13 +209,14 @@ class MainNode extends Node {
 
     if (this.point.letter === 'M' && this.path.lastPoint) {
       this.path.lastPoint.removeCurveNodes()
-      this.path.points = this.path.points.filter(p => p !== this.path.lastPoint && p.letter !== 'Z')
+      this.path.points = this.path.points.filter(
+        p => p !== this.path.lastPoint && p.letter !== 'Z'
+      )
       this.path.lastPoint = null
     }
 
     this.path.points = this.path.points.filter(p => p !== this.point)
     this.path.point = null
-
 
     if (!this.path.points.length) {
       //? remove any excess points
@@ -207,9 +224,7 @@ class MainNode extends Node {
       //   p.removeMainNode()
       //   p.removeCurveNodes()
       // })
-      this.path.remove()
-      settings.paths = settings.paths.filter(p => p !== this.path)
-      settings.addNewPath = true
+      this.path.deletePath()
     } else if (!this.path.points.some(p => p.letter === 'M')) {
       this.path.points[0].letter = 'M'
     }
@@ -223,13 +238,13 @@ class MainNode extends Node {
 
     // syncing lastPoint with firstPoint
     if (this.point === this.path.firstPoint && this.path.lastPoint) {
-      this.path.lastPoint.pos = {...this.point.pos}
+      this.path.lastPoint.pos = { ...this.point.pos }
     }
 
     this.path.updatePath()
 
     if (this.point === this.path.firstPoint && this.path.lastPoint?.leftNode) {
-      ;[this.path.lastPoint.leftNode, this.point.rightNode].forEach(node=> {
+      ;[this.path.lastPoint.leftNode, this.point.rightNode].forEach(node => {
         node.addXy(this.grabPos.a)
         node.setStyles()
         node.handleLine.update()
@@ -250,7 +265,7 @@ class Point {
     Object.assign(this, {
       letter: props.letter,
       pos: props.pos,
-      ...props
+      ...props,
     })
     this.path.points.push(this)
     if (this.letter !== 'Z' && !this.isLastPoint) {
@@ -258,7 +273,7 @@ class Point {
         path: this.path,
         point: this,
         container: this.path.artboard.display,
-        className: this.letter + this.pointIndex
+        className: this.letter + this.pointIndex,
       })
     }
   }
@@ -270,7 +285,8 @@ class Point {
     return this.path.points.indexOf(this)
   }
   get prevPoint() {
-    if (this === this.path.firstPoint && this.path.lastPoint) return this.path.lastPoint
+    if (this === this.path.firstPoint && this.path.lastPoint)
+      return this.path.lastPoint
     return this.path.points?.[this.pointIndex - 1]
   }
   get nextPoint() {
@@ -317,7 +333,7 @@ class Point {
 class Path extends PageObject {
   constructor(props, pos) {
     super({
-      el: document.createElementNS('http://www.w3.org/2000/svg','path'),
+      el: document.createElementNS('http://www.w3.org/2000/svg', 'path'),
       pos: { x: 0, y: 0 },
       canMove: true,
       points: [],
@@ -326,20 +342,25 @@ class Path extends PageObject {
         fill: settings.fill,
         stroke: settings.stroke,
         strokeWidth: settings.strokeWidth,
-        smoothing: settings.smoothing
+        smoothing: settings.smoothing,
       },
       id: settings.idCount,
-      ...props
+      ...props,
     })
     this.addToPage()
     this.addPoint('M', pos)
     this.addDragEvent()
     settings.paths.push(this)
     settings.currentPath = this
-    this.el.addEventListener('click', ()=> settings.currentPath = this)
+    this.el.addEventListener('click', () => (settings.currentPath = this))
   }
   get firstPoint() {
     return this.points?.[0]
+  }
+  deletePath() {
+    this.remove()
+    settings.paths = settings.paths.filter(p => p !== this.path)
+    settings.addNewPath = true
   }
   addPoint(letter, pos) {
     new Point({ letter, pos, path: this })
@@ -351,34 +372,35 @@ class Path extends PageObject {
     this.updatePath()
   }
   closePath() {
-    this.lastPoint = new Point({ 
-      letter: 'L', 
-      pos: {...this.firstPoint.pos},
+    this.lastPoint = new Point({
+      letter: 'L',
+      pos: { ...this.firstPoint.pos },
       path: this,
-      isLastPoint: true
+      isLastPoint: true,
     })
     new Point({ letter: 'Z', path: this })
     this.updatePath()
   }
   updatePath() {
-    const newPath = this.points.map(n => {
-      const { letter } = n
-      if (letter === 'Z') return 'Z'
+    const newPath = this.points
+      .map(n => {
+        const { letter } = n
+        if (letter === 'Z') return 'Z'
 
-      const { pos, xy1, xy2 } = n
+        const { pos, xy1, xy2 } = n
 
-      //* dealing with h and v command
-      if (['h', 'v'].includes(letter)) {
-        // return `${letter} ${n.singlePos}`
-        return `L ${xY(pos)}` //* automatically changing h and v to L so it can be moved easily
-      }
-      return letter === 'C'
+        //* dealing with h and v command
+        if (['h', 'v'].includes(letter)) {
+          // return `${letter} ${n.singlePos}`
+          return `L ${xY(pos)}` //* automatically changing h and v to L so it can be moved easily
+        }
+        return letter === 'C'
           ? `${letter} ${xY(xy1)}, ${xY(xy2)}, ${xY(pos)}`
           : `${letter} ${xY(pos)}`
-    }).join(' ')
+      })
+      .join(' ')
     settings.inputs.svgInput.value = newPath
-
-    ;['fill', 'stroke', 'stroke-width'].forEach(key=> {
+    ;['fill', 'stroke', 'stroke-width'].forEach(key => {
       this.el.setAttribute(key, this.svgStyle[kebabToCamelCase(key)])
     })
     this.el.setAttribute('d', newPath)
@@ -402,7 +424,6 @@ class Path extends PageObject {
   }
 }
 
-
 // class Svg extends PageObject {
 //   constructor(props) {
 //     super({
@@ -418,10 +439,4 @@ class Path extends PageObject {
 //   }
 // }
 
-
-export {
-  Path,
-  Point,
-  LeftNode,
-  RightNode
-}
+export { Path, Point, LeftNode, RightNode }

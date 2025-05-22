@@ -14,7 +14,10 @@ const elements = {
       obj[key] = { pos, isOpen, w, h }
     })
     const { strokeWidth, smoothing, fillHex, strokeHex } = settings
-    localStorage.setItem(this.saveDataName, JSON.stringify({...obj, strokeWidth, smoothing, fillHex, strokeHex }))
+    localStorage.setItem(
+      this.saveDataName,
+      JSON.stringify({ ...obj, strokeWidth, smoothing, fillHex, strokeHex })
+    )
   },
   readData() {
     const saveData = localStorage.getItem(this.saveDataName)
@@ -22,11 +25,13 @@ const elements = {
       const data = JSON.parse(saveData)
 
       Object.keys(data).forEach(key => {
-        if (['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].includes(key)) {
+        if (
+          ['strokeWidth', 'smoothing', 'fillHex', 'strokeHex'].includes(key)
+        ) {
           settings.inputs[key].value = data[key]
           settings[key] = data[key]
           if (key.includes('Hex')) settings.inputs[key].updateColor()
-        } else { 
+        } else {
           ;['pos', 'isOpen', 'w', 'h'].forEach(prop => {
             this.windows[key][prop] = data[key][prop]
           })
@@ -34,7 +39,7 @@ const elements = {
         }
       })
     }
-  }
+  },
 }
 
 const settings = {
@@ -43,7 +48,7 @@ const settings = {
   uploadData: {
     svg: {
       w: 418,
-      h: 300
+      h: 300,
     },
     paths: [
       {
@@ -53,7 +58,7 @@ const settings = {
         d: 'M 3 3 h 25 v 1 h -23 v 1 h -1 v 19 h 23 v -18 h -3 v 7 h -1 v 5 h -3 v -1 h 1 v -2 h 1 v -4 h 1 v -6 h 5 v 20 h -25 v -22',
         fill: '#000888',
         stroke: '#91938a',
-        strokeWidth: 2
+        strokeWidth: 2,
       },
       // {
       //   d: 'M 112 99 L 257 58 C 257 58, 329 50, 352 95 C 379 148, 353 180, 353 180 L 195 206',
@@ -63,17 +68,30 @@ const settings = {
       // }
     ],
   },
+  convertPath(d) {
+    return d.split(' ').reduce((acc, item) => {
+      const p = item.replaceAll(',', '').trim()
+      isNaN(+p)
+        ? acc.push({ letter: p, nodes: [] })
+        : acc[acc.length - 1].nodes.push(+p)
+      return acc
+    }, [])
+  },
+  updateSvgWithD(d) {
+    // const currentValue = settings.inputs.svgInput.value
+    this.currentPath.points.forEach(p => p.mainNode.deletePoint())
+    this.currentPath.deletePath()
+
+    this.convertPath(d).forEach(p => {
+      this[`add${p.letter}point`](p)
+    })
+    this.currentPath.updatePath()
+  },
   get convertedPaths() {
     return this.uploadData.paths.map(p => {
-      return p.d.split(' ').reduce((acc, item) => {
-        const p = item.replaceAll(',','').trim()     
-        isNaN(+p)
-          ? acc.push({ letter: p, nodes: [] }) 
-          : acc[acc.length - 1].nodes.push(+p)
-        return acc
-      }, [])
+      return this.convertPath(p.d)
     })
-  }, 
+  },
   paths: [],
   snap: 1,
   addNewPath: true,
@@ -94,31 +112,44 @@ const settings = {
     document.querySelector('.display').classList[moveAction]('freeze')
   },
   addMpoint(point) {
-    new Path({ artboard: elements.artboard }, { x: point.nodes[0], y: point.nodes[1] })
+    new Path(
+      { artboard: elements.artboard },
+      { x: point.nodes[0], y: point.nodes[1] }
+    )
   },
   //* experimental feature to read h and v command
   addHVpoint(point) {
-    const [param, unchangedParam] = point.letter === 'h' ? ['x', 'y'] : ['y', 'x']
-    const prevPoint = this.currentPath.points[this.currentPath.points.length - 1]
+    const [param, unchangedParam] =
+      point.letter === 'h' ? ['x', 'y'] : ['y', 'x']
+    const prevPoint =
+      this.currentPath.points[this.currentPath.points.length - 1]
     const pos = { x: 0, y: 0 }
 
     // enlarging svg to make it easier to see
     const enlargeFactor = 10
 
-    pos[param] = prevPoint.pos[param] + (point.nodes[0] * enlargeFactor)
+    pos[param] = prevPoint.pos[param] + point.nodes[0] * enlargeFactor
     pos[unchangedParam] = prevPoint.pos[unchangedParam]
-    new Point({ 
-      letter: point.letter, 
-      path: this.currentPath, 
+    new Point({
+      letter: point.letter,
+      path: this.currentPath,
       pos,
-      singlePos: (point.nodes[0] * enlargeFactor)
+      singlePos: point.nodes[0] * enlargeFactor,
     })
   },
   addLpoint(point) {
-    new Point({ letter: 'L', path: this.currentPath, pos: { x: point.nodes[0], y: point.nodes[1] }})
+    new Point({
+      letter: 'L',
+      path: this.currentPath,
+      pos: { x: point.nodes[0], y: point.nodes[1] },
+    })
   },
   addCpoint(point) {
-    const newPoint = new Point({ letter: 'C', path: this.currentPath, pos: { x: point.nodes[4], y: point.nodes[5] }})
+    const newPoint = new Point({
+      letter: 'C',
+      path: this.currentPath,
+      pos: { x: point.nodes[4], y: point.nodes[5] },
+    })
     newPoint.leftNode = new LeftNode({
       path: newPoint.path,
       point: newPoint,
@@ -143,9 +174,11 @@ const settings = {
     this.currentPath.lastPoint.mainNode = null
   },
   outputSvg() {
-    ;['w', 'h'].forEach(prop => elements.artboard.nav[prop] = this.uploadData.svg[prop])
+    ;['w', 'h'].forEach(
+      prop => (elements.artboard.nav[prop] = this.uploadData.svg[prop])
+    )
     elements.artboard.nav.setStyles()
-    console.log(this.convertedPaths)
+    console.log('converted path', this.convertedPaths)
 
     this.convertedPaths.forEach((path, i) => {
       ;['fill', 'stroke', 'strokeWidth'].forEach(prop => {
@@ -176,7 +209,4 @@ const settings = {
   // }
 }
 
-export {
-  elements,
-  settings,
-}
+export { elements, settings }

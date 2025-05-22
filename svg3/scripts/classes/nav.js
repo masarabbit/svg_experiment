@@ -10,33 +10,41 @@ class NavWindow extends PageObject {
         className: `nav-window ${props.className || ''}`,
         innerHTML: `
           <div class="handle">
-            ${`<p>${camelCaseToNormalString(props.name)}</p>` || '<span></span>'}
+            ${
+              `<p>${camelCaseToNormalString(props.name)}</p>` || '<span></span>'
+            }
             <div>
-              ${props.selectAction
-                ? '<button class="select-btn"></button>'
-                : ''
+              ${
+                props.selectAction ? '<button class="select-btn"></button>' : ''
               }
               <button class="arrow"></button>
             </div>
           </div>
-          <div class="content-wrapper ${props.isVertical ? 'column' : '' }"></div>
-        `
+          <div class="content-wrapper ${
+            props.isVertical ? 'column' : ''
+          }"></div>
+        `,
       }),
       canMove: true,
-      ...props
+      ...props,
     })
     this.container.appendChild(this.window)
     this.el = this.window.querySelector('.handle')
     this.contentWrapper = this.window.querySelector('.content-wrapper')
-    this.window.querySelector('.arrow').addEventListener('click', this.toggleState)
+    this.window
+      .querySelector('.arrow')
+      .addEventListener('click', this.toggleState)
 
     if (this.content) this.content(this)
-    if (this.selectAction) this.window.querySelector('.select-btn').addEventListener('click', ()=> this.selectAction(this))
+    if (this.selectAction)
+      this.window
+        .querySelector('.select-btn')
+        .addEventListener('click', () => this.selectAction(this))
 
     this.setStyles()
     this.addDragEvent()
 
-    mouse.up(document, 'add', ()=> elements.saveData())
+    mouse.up(document, 'add', () => elements.saveData())
   }
   toggleState = () => {
     this.isOpen = !this.isOpen
@@ -55,7 +63,7 @@ class NavWindow extends PageObject {
       top: px(this.pos.y || 0),
       width: px(this.w),
       height: px(this.h || this.w),
-      zIndex: 1 + this.y
+      zIndex: 1 + this.y,
     })
   }
   setUp() {
@@ -67,12 +75,10 @@ class NavWindow extends PageObject {
       new Button({
         ...b,
         container: this.contentWrapper,
-        className: `${b.className} menu-btn`
+        className: `${b.className} menu-btn`,
       })
-    }) 
+    })
   }
 }
 
-export {
-  NavWindow
-}
+export { NavWindow }
